@@ -3,9 +3,10 @@
    ============================================================================ */
 
 #modalVerEmpresa .modal-header {
-    background: #1e3a8a;
+    background: #3b82f6;
     color: white;
     padding: 1rem 1.5rem;
+    border-bottom: 3px solid #1e40af;
 }
 
 #modalVerEmpresa .modal-title {
@@ -15,4 +16,28 @@
 
 #modalVerEmpresa .modal-body {
     padding: 1.25rem 1.5rem;
+}
+
+#modalVerEmpresa .modal-footer {
+    padding: 0.875rem 1.5rem;
+    background-color: #eff6ff;
+    border-top: 1px solid #bfdbfe;
+}
+
+#modalVerEmpresa .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+#modalVerEmpresa .btn-secondary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+#modalVerEmpresa .btn-secondary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    transform: translateY(-1px);
 }

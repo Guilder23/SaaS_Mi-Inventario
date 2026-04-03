@@ -3,9 +3,10 @@
    ============================================================================ */
 
 #modalEliminarCliente .modal-header {
-    background: #991b1b;
+    background: #dc2626;
     color: white;
     padding: 1rem 1.5rem;
+    border-bottom: 3px solid #991b1b;
 }
 
 #modalEliminarCliente .modal-title {
@@ -15,4 +16,20 @@
 
 #modalEliminarCliente .modal-body {
     padding: 1.25rem 1.5rem;
+}
+
+#modalEliminarCliente .modal-footer {
+    padding: 0.875rem 1.5rem;
+    background-color: #fee2e2;
+    border-top: 1px solid #fecaca;
+}
+
+#modalEliminarCliente .btn-danger {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+#modalEliminarCliente .btn-danger:hover {
+    background-color: #b91c1c;
+    border-color: #b91c1c;
 }

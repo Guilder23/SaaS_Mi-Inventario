@@ -3,10 +3,10 @@
    ============================================================================ */
 
 #modalEditarEmpresa .modal-header {
-    background: #1e3a8a;
-    color: white;
+    background: #f59e0b;
+    color: #111827;
     padding: 1rem 1.5rem;
-    border-bottom: 3px solid #065f46;
+    border-bottom: 3px solid #b45309;
 }
 
 #modalEditarEmpresa .modal-title {
@@ -25,12 +25,12 @@
 }
 
 #modalEditarEmpresa .btn-warning {
-    background-color: #1e3a8a;
-    border-color: #1e3a8a;
-    color: white;
+    background-color: #f59e0b;
+    border-color: #f59e0b;
+    color: #111827;
 }
 
 #modalEditarEmpresa .btn-warning:hover {
-    background-color: #1e40af;
-    border-color: #1e40af;
+    background-color: #d97706;
+    border-color: #d97706;
 }

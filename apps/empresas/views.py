@@ -45,10 +45,21 @@ def pagos_empresa(request):
     qr_config = PagoQRConfig.objects.filter(activo=True).order_by("-fecha_creacion").first()
     pagos = PagoEmpresa.objects.filter(empresa=empresa).order_by("-fecha_envio")
 
+    hoy = timezone.now().date()
+    fecha_vencimiento = empresa.fecha_vencimiento
+    dias_restantes = None
+    estado_licencia = "sin_pago"
+    if fecha_vencimiento:
+        dias_restantes = (fecha_vencimiento - hoy).days
+        estado_licencia = "vigente" if dias_restantes >= 0 else "vencida"
+
     context = {
         "empresa": empresa,
         "qr_config": qr_config,
         "pagos": pagos,
+        "fecha_vencimiento": fecha_vencimiento,
+        "dias_restantes": dias_restantes,
+        "estado_licencia": estado_licencia,
     }
     return render(request, "empresas/pagos_cliente/pagos_cliente.html", context)
 

@@ -3,9 +3,10 @@
    ============================================================================ */
 
 #modalVerCliente .modal-header {
-    background: #1e3a8a;
+    background: #3b82f6;
     color: white;
     padding: 1rem 1.5rem;
+    border-bottom: 3px solid #1e40af;
 }
 
 #modalVerCliente .modal-title {
@@ -15,4 +16,28 @@
 
 #modalVerCliente .modal-body {
     padding: 1.25rem 1.5rem;
+}
+
+#modalVerCliente .modal-footer {
+    padding: 0.875rem 1.5rem;
+    background-color: #eff6ff;
+    border-top: 1px solid #bfdbfe;
+}
+
+#modalVerCliente .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+#modalVerCliente .btn-secondary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+#modalVerCliente .btn-secondary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    transform: translateY(-1px);
 }

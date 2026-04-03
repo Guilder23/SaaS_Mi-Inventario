@@ -3,9 +3,10 @@
    ============================================================================ */
 
 #modalVerPago .modal-header {
-    background: #1e3a8a;
+    background: #3b82f6;
     color: white;
     padding: 1rem 1.5rem;
+    border-bottom: 3px solid #1e40af;
 }
 
 #modalVerPago .modal-title {
@@ -15,4 +16,60 @@
 
 #modalVerPago .modal-body {
     padding: 1.25rem 1.5rem;
+}
+
+#modalVerPago .modal-footer {
+    padding: 0.875rem 1.5rem;
+    background-color: #eff6ff;
+    border-top: 1px solid #bfdbfe;
+}
+
+#modalVerPago .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+#modalVerPago .btn-secondary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+#modalVerPago .btn-secondary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+#modalVerPago .modal-content {
+    border: none;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#modalVerPago .comprobante-preview {
+    margin-top: 0.75rem;
+    text-align: center;
+}
+
+#modalVerPago .comprobante-preview img {
+    max-width: 90%;
+    max-height: 220px;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    #modalVerPago .modal-body {
+        padding: 1.5rem;
+    }
+
+    #modalVerPago .modal-footer {
+        flex-direction: column;
+    }
+
+    #modalVerPago .modal-footer .btn {
+        width: 100%;
+    }
 }

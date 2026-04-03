@@ -115,3 +115,67 @@
     color: #991b1b;
     border-color: #fca5a5;
 }
+
+.card-licencia {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+}
+
+.licencia-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.licencia-title {
+    font-weight: 600;
+}
+
+.licencia-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.licencia-info {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.75rem;
+}
+
+.licencia-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.badge-estado-vigente {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-color: #6ee7b7;
+}
+
+.badge-estado-vencida {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+
+.badge-estado-sin-pago {
+    background-color: #e0f2fe;
+    color: #1e40af;
+    border-color: #93c5fd;
+}
+
+@media (max-width: 768px) {
+    .licencia-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .licencia-info {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

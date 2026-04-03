@@ -229,19 +229,20 @@ AWS_DEFAULT_ACL = None
 AWS_S3_ADDRESSING_STYLE = "virtual"
 AWS_S3_FILE_OVERWRITE = False  # Evita sobrescribir archivos con el mismo nombre
 
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+# Desactivado temporalmente para usar almacenamiento local
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+#     },
+# }
 # ================================================================
 
-# Configuración de archivos multimedia (eliminado: ya se maneja con STORAGES para B2)
-# MEDIA_URL = '/media/'  
-# MEDIA_ROOT = BASE_DIR / 'media'
+# Configuración de archivos multimedia (activado para uso local)
+MEDIA_URL = '/media/'  
+MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGGING = {
     'version': 1,

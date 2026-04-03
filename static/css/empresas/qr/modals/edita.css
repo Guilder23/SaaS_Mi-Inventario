@@ -1,0 +1,18 @@
+/* ============================================================================
+   ESTILOS PARA MODAL EDITAR QR
+   ============================================================================ */
+
+#modalEditarQr .modal-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 1.5rem;
+}
+
+#modalEditarQr .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+#modalEditarQr .modal-body {
+    padding: 1.25rem 1.5rem;
+}

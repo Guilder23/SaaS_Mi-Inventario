@@ -1,0 +1,233 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Gestion de Pagos{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/empresas/pagos/pagos.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/pagos/modals/ver.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/pagos/modals/validar.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-receipt"></i> Gestion de Pagos
+            </h1>
+            <p class="page-subtitle">Valida pagos de empresas</p>
+        </div>
+    </div>
+
+    <div class="card card-filtros">
+        <div class="card-body py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control form-control-sm border-left-0"
+                            id="buscar"
+                            name="buscar"
+                            placeholder="Buscar por empresa, monto o estado..."
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control form-control-sm" id="estado" name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="aprobado">Aprobados</option>
+                        <option value="rechazado">Rechazados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="card-header">
+            <h6 class="card-title mb-0"><i class="fas fa-clock"></i> Pagos pendientes</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm tabla-pagos mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Empresa</th>
+                        <th style="width: 12%;">Monto</th>
+                        <th style="width: 12%;">Estado</th>
+                        <th style="width: 18%;">Fecha</th>
+                        <th style="width: 18%;">Comprobante</th>
+                        <th class="text-center" style="width: 20%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos_pendientes %}
+                    <tr data-estado="{{ pago.estado }}">
+                        <td>
+                            <span class="pago-badge">{{ pago.empresa.nombre }}</span>
+                        </td>
+                        <td>{{ pago.monto }} {{ pago.moneda }}</td>
+                        <td class="text-center">
+                            <span class="badge-estado badge-estado-pendiente" data-estado="{{ pago.estado }}">
+                                <i class="fas fa-clock"></i> Pendiente
+                            </span>
+                        </td>
+                        <td><small>{{ pago.fecha_envio|date:"d/m/y H:i" }}</small></td>
+                        <td>
+                            {% if pago.comprobante %}
+                                <a href="{{ pago.comprobante.url }}" target="_blank">Ver</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-ver-pago"
+                                data-toggle="modal"
+                                data-target="#modalVerPago"
+                                data-pago-id="{{ pago.id }}"
+                                data-pago-empresa="{{ pago.empresa.nombre }}"
+                                data-pago-monto="{{ pago.monto }}"
+                                data-pago-moneda="{{ pago.moneda }}"
+                                data-pago-estado="{{ pago.estado }}"
+                                data-pago-fecha="{{ pago.fecha_envio|date:'d/m/Y H:i' }}"
+                                data-pago-comprobante="{% if pago.comprobante %}{{ pago.comprobante.url }}{% endif %}"
+                                title="Ver detalle"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-success btn-sm btn-validar-pago"
+                                data-toggle="modal"
+                                data-target="#modalValidarPago"
+                                data-action="aprobar_pago"
+                                data-pago-id="{{ pago.id }}"
+                                data-pago-empresa="{{ pago.empresa.nombre }}"
+                                title="Aprobar"
+                            >
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm btn-validar-pago"
+                                data-toggle="modal"
+                                data-target="#modalValidarPago"
+                                data-action="rechazar_pago"
+                                data-pago-id="{{ pago.id }}"
+                                data-pago-empresa="{{ pago.empresa.nombre }}"
+                                title="Rechazar"
+                            >
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay pagos pendientes</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card card-tabla mt-4">
+        <div class="card-header">
+            <h6 class="card-title mb-0"><i class="fas fa-history"></i> Pagos recientes</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm tabla-pagos mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Empresa</th>
+                        <th style="width: 12%;">Monto</th>
+                        <th style="width: 12%;">Estado</th>
+                        <th style="width: 18%;">Fecha</th>
+                        <th style="width: 18%;">Comprobante</th>
+                        <th class="text-center" style="width: 20%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos_recientes %}
+                    <tr data-estado="{{ pago.estado }}">
+                        <td>
+                            <span class="pago-badge">{{ pago.empresa.nombre }}</span>
+                        </td>
+                        <td>{{ pago.monto }} {{ pago.moneda }}</td>
+                        <td class="text-center">
+                            {% if pago.estado == 'aprobado' %}
+                                <span class="badge-estado badge-estado-aprobado" data-estado="{{ pago.estado }}">
+                                    <i class="fas fa-check-circle"></i> Aprobado
+                                </span>
+                            {% elif pago.estado == 'rechazado' %}
+                                <span class="badge-estado badge-estado-rechazado" data-estado="{{ pago.estado }}">
+                                    <i class="fas fa-times-circle"></i> Rechazado
+                                </span>
+                            {% else %}
+                                <span class="badge-estado badge-estado-pendiente" data-estado="{{ pago.estado }}">
+                                    <i class="fas fa-clock"></i> Pendiente
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td><small>{{ pago.fecha_envio|date:"d/m/y H:i" }}</small></td>
+                        <td>
+                            {% if pago.comprobante %}
+                                <a href="{{ pago.comprobante.url }}" target="_blank">Ver</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-ver-pago"
+                                data-toggle="modal"
+                                data-target="#modalVerPago"
+                                data-pago-id="{{ pago.id }}"
+                                data-pago-empresa="{{ pago.empresa.nombre }}"
+                                data-pago-monto="{{ pago.monto }}"
+                                data-pago-moneda="{{ pago.moneda }}"
+                                data-pago-estado="{{ pago.estado }}"
+                                data-pago-fecha="{{ pago.fecha_envio|date:'d/m/Y H:i' }}"
+                                data-pago-comprobante="{% if pago.comprobante %}{{ pago.comprobante.url }}{% endif %}"
+                                title="Ver detalle"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay pagos recientes</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'empresas/pagos/modals/ver.html' %}
+    {% include 'empresas/pagos/modals/validar.html' %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/empresas/pagos/modals/ver.js' %}"></script>
+    <script src="{% static 'js/empresas/pagos/modals/validar.js' %}"></script>
+    <script src="{% static 'js/empresas/pagos/pagos.js' %}"></script>
+{% endblock %}

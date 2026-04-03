@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from apps.core.tenancy import EmpresaOwnedModel
 
-class Vendedor(models.Model):
+
+class Vendedor(EmpresaOwnedModel):
     """Modelo para gestión de vendedores"""
     
     ESTADO_CHOICES = [
@@ -15,7 +17,8 @@ class Vendedor(models.Model):
     # Datos básicos
     nombre = models.CharField(max_length=200, verbose_name='Nombre del Vendedor')
     apellido = models.CharField(max_length=200, verbose_name='Apellido')
-    cedula = models.CharField(max_length=50, unique=True, verbose_name='Cédula/DNI')
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='vendedores')
+    cedula = models.CharField(max_length=50, verbose_name='Cédula/DNI')
     email = models.EmailField(blank=True, null=True, verbose_name='Email')
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name='Teléfono')
     direccion = models.TextField(blank=True, null=True, verbose_name='Dirección')
@@ -70,7 +73,18 @@ class Vendedor(models.Model):
         verbose_name_plural = 'Vendedores'
         ordering = ['-fecha_creacion']
         db_table = 'vendedores'
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'cedula'], name='uniq_vendedor_empresa_cedula'),
+        ]
     
+    def save(self, *args, **kwargs):
+        if not self.empresa_id:
+            if self.almacen_id:
+                self.empresa = self.almacen.empresa
+            elif self.tienda_id:
+                self.empresa = self.tienda.empresa
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.nombre} {self.apellido} - {self.cedula}"
     

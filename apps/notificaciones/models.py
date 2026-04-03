@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class Notificacion(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class Notificacion(EmpresaOwnedModel):
     """Notificaciones del sistema"""
     TIPOS = (
         ('pedido', 'Pedido Recibido'),
@@ -16,6 +18,7 @@ class Notificacion(models.Model):
         ('general', 'General'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='notificaciones')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notificaciones')
     tipo = models.CharField(max_length=20, choices=TIPOS)
     titulo = models.CharField(max_length=200)
@@ -40,3 +43,8 @@ class Notificacion(models.Model):
             self.leida = True
             self.fecha_lectura = timezone.now()
             self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and hasattr(self.usuario, 'perfil'):
+            self.empresa = self.usuario.perfil.empresa
+        super().save(*args, **kwargs)

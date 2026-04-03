@@ -1,0 +1,18 @@
+/* ============================================================================
+   ESTILOS PARA MODAL VER PAGO
+   ============================================================================ */
+
+#modalVerPago .modal-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 1.5rem;
+}
+
+#modalVerPago .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+#modalVerPago .modal-body {
+    padding: 1.25rem 1.5rem;
+}

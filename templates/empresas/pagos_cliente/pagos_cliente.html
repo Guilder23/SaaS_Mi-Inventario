@@ -1,0 +1,150 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Mis Pagos{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/empresas/pagos_cliente/pagos_cliente.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/pagos_cliente/modals/crea.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/pagos_cliente/modals/ver.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-receipt"></i> Mis Pagos
+            </h1>
+            <p class="page-subtitle">Envia el comprobante de pago</p>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalCrearPago">
+            <i class="fas fa-upload"></i> Enviar Comprobante
+        </button>
+    </div>
+
+    <div class="card card-tabla mb-4">
+        <div class="card-header">
+            <h6 class="card-title mb-0"><i class="fas fa-qrcode"></i> QR de pago</h6>
+        </div>
+        <div class="card-body text-center">
+            {% if qr_config and qr_config.qr_imagen %}
+                <img src="{{ qr_config.qr_imagen.url }}" alt="QR" class="img-fluid mb-3" style="max-width: 280px;">
+            {% else %}
+                <p class="text-muted">QR no configurado.</p>
+            {% endif %}
+            <p class="text-muted">{{ qr_config.instrucciones|default:'' }}</p>
+        </div>
+    </div>
+
+    <div class="card card-filtros">
+        <div class="card-body py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control form-control-sm border-left-0"
+                            id="buscar"
+                            name="buscar"
+                            placeholder="Buscar por monto o estado..."
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control form-control-sm" id="estado" name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente">Pendientes</option>
+                        <option value="aprobado">Aprobados</option>
+                        <option value="rechazado">Rechazados</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-pagos-cliente mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Fecha</th>
+                        <th style="width: 15%;">Monto</th>
+                        <th style="width: 15%;">Estado</th>
+                        <th style="width: 20%;">Comprobante</th>
+                        <th class="text-center" style="width: 15%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos %}
+                    <tr data-estado="{{ pago.estado }}">
+                        <td><small>{{ pago.fecha_envio|date:"d/m/y H:i" }}</small></td>
+                        <td>{{ pago.monto }} {{ pago.moneda }}</td>
+                        <td class="text-center">
+                            {% if pago.estado == 'aprobado' %}
+                                <span class="badge-estado badge-estado-aprobado">
+                                    <i class="fas fa-check-circle"></i> Aprobado
+                                </span>
+                            {% elif pago.estado == 'rechazado' %}
+                                <span class="badge-estado badge-estado-rechazado">
+                                    <i class="fas fa-times-circle"></i> Rechazado
+                                </span>
+                            {% else %}
+                                <span class="badge-estado badge-estado-pendiente">
+                                    <i class="fas fa-clock"></i> Pendiente
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if pago.comprobante %}
+                                <a href="{{ pago.comprobante.url }}" target="_blank">Ver</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-ver-pago"
+                                data-toggle="modal"
+                                data-target="#modalVerPago"
+                                data-pago-id="{{ pago.id }}"
+                                data-pago-monto="{{ pago.monto }}"
+                                data-pago-moneda="{{ pago.moneda }}"
+                                data-pago-estado="{{ pago.estado }}"
+                                data-pago-fecha="{{ pago.fecha_envio|date:'d/m/Y H:i' }}"
+                                data-pago-comprobante="{% if pago.comprobante %}{{ pago.comprobante.url }}{% endif %}"
+                                title="Ver detalle"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay pagos registrados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'empresas/pagos_cliente/modals/crea.html' %}
+    {% include 'empresas/pagos_cliente/modals/ver.html' %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/empresas/pagos_cliente/modals/crea.js' %}"></script>
+    <script src="{% static 'js/empresas/pagos_cliente/modals/ver.js' %}"></script>
+    <script src="{% static 'js/empresas/pagos_cliente/pagos_cliente.js' %}"></script>
+{% endblock %}

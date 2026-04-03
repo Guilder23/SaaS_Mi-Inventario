@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class TiendaVirtual(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class TiendaVirtual(EmpresaOwnedModel):
     """Modelo para gestión de tiendas virtuales/online"""
     
     ESTADO_CHOICES = [
@@ -21,12 +23,13 @@ class TiendaVirtual(models.Model):
         ('otra', 'Otra'),
     ]
     
-    nombre = models.CharField(max_length=200, unique=True, verbose_name='Nombre de la Tienda Virtual')
-    codigo = models.CharField(max_length=50, unique=True, verbose_name='Código')
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='tiendas_virtuales')
+    nombre = models.CharField(max_length=200, verbose_name='Nombre de la Tienda Virtual')
+    codigo = models.CharField(max_length=50, verbose_name='Código')
     descripcion = models.TextField(blank=True, null=True, verbose_name='Descripción')
     
     # Información web
-    url = models.URLField(max_length=300, unique=True, verbose_name='URL de la Tienda')
+    url = models.URLField(max_length=300, verbose_name='URL de la Tienda')
     dominio = models.CharField(max_length=200, verbose_name='Dominio')
     plataforma = models.CharField(max_length=20, choices=PLATAFORMA_CHOICES, default='propia',
                                  verbose_name='Plataforma')
@@ -71,6 +74,11 @@ class TiendaVirtual(models.Model):
         verbose_name_plural = 'Tiendas Virtuales'
         ordering = ['-fecha_creacion']
         db_table = 'tiendas_virtuales'
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'nombre'], name='uniq_tiendavirtual_empresa_nombre'),
+            models.UniqueConstraint(fields=['empresa', 'codigo'], name='uniq_tiendavirtual_empresa_codigo'),
+            models.UniqueConstraint(fields=['empresa', 'url'], name='uniq_tiendavirtual_empresa_url'),
+        ]
     
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"

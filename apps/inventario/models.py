@@ -2,8 +2,11 @@ from django.db import models
 from apps.productos.models import Producto
 from apps.usuarios.models import PerfilUsuario
 
-class Inventario(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class Inventario(EmpresaOwnedModel):
     """Control de inventario por ubicación"""
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='inventarios')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     ubicacion = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE)
     cantidad = models.IntegerField(default=0)
@@ -17,6 +20,14 @@ class Inventario(models.Model):
     
     def __str__(self):
         return f"{self.producto.nombre} - {self.ubicacion.nombre_ubicacion}: {self.cantidad}"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id:
+            if self.ubicacion_id:
+                self.empresa = self.ubicacion.empresa
+            elif self.producto_id:
+                self.empresa = self.producto.empresa
+        super().save(*args, **kwargs)
     
     @property
     def estado_stock(self):
@@ -28,7 +39,7 @@ class Inventario(models.Model):
         return 'normal'
 
 
-class MovimientoInventario(models.Model):
+class MovimientoInventario(EmpresaOwnedModel):
     """Registro de todos los movimientos de inventario"""
     TIPOS = (
         ('entrada', 'Entrada'),
@@ -40,6 +51,7 @@ class MovimientoInventario(models.Model):
         ('danado', 'Producto Dañado'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='movimientos_inventario')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     ubicacion = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE)
     tipo = models.CharField(max_length=30, choices=TIPOS)
@@ -55,3 +67,11 @@ class MovimientoInventario(models.Model):
     
     def __str__(self):
         return f"{self.tipo} - {self.producto.nombre} ({self.cantidad})"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id:
+            if self.ubicacion_id:
+                self.empresa = self.ubicacion.empresa
+            elif self.producto_id:
+                self.empresa = self.producto.empresa
+        super().save(*args, **kwargs)

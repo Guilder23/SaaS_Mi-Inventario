@@ -1,0 +1,175 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Gestion de Empresas{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/empresas/empresas/empresas.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/empresas/modals/crea.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/empresas/modals/ver.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/empresas/modals/edita.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/empresas/modals/elimina.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-building"></i> Gestion de Empresas
+            </h1>
+            <p class="page-subtitle">Administra las empresas clientes</p>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalCrearEmpresa">
+            <i class="fas fa-plus"></i> Nueva Empresa
+        </button>
+    </div>
+
+    <div class="card card-filtros">
+        <div class="card-body py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-white border-right-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                        </div>
+                        <input
+                            type="text"
+                            class="form-control form-control-sm border-left-0"
+                            id="buscar"
+                            name="buscar"
+                            placeholder="Buscar por nombre, plan o notas..."
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control form-control-sm" id="estado" name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activas</option>
+                        <option value="inactivo">Inactivas</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-control form-control-sm" id="plan" name="plan">
+                        <option value="">Todos los planes</option>
+                        <option value="basico">Basico</option>
+                        <option value="pro">Pro</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-empresas mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 18%;">Empresa</th>
+                        <th style="width: 12%;">Plan</th>
+                        <th style="width: 12%;">Estado</th>
+                        <th style="width: 16%;">Vencimiento</th>
+                        <th style="width: 12%;">Usuarios</th>
+                        <th style="width: 14%;">Pagos pendientes</th>
+                        <th class="text-center" style="width: 16%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for empresa in empresas %}
+                    <tr data-estado="{% if empresa.activa %}activo{% else %}inactivo{% endif %}" data-plan="{{ empresa.plan }}">
+                        <td>
+                            <span class="empresa-badge">{{ empresa.nombre }}</span>
+                        </td>
+                        <td>
+                            <span class="badge-plan" data-plan="{{ empresa.plan }}">{{ empresa.get_plan_display }}</span>
+                        </td>
+                        <td class="text-center">
+                            {% if empresa.esta_activa %}
+                                <span class="badge-estado badge-estado-activo">
+                                    <i class="fas fa-check-circle"></i> Activa
+                                </span>
+                            {% else %}
+                                <span class="badge-estado badge-estado-inactivo">
+                                    <i class="fas fa-times-circle"></i> Inactiva
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small>{{ empresa.fecha_vencimiento|default:'-' }}</small>
+                        </td>
+                        <td>{{ empresa.total_usuarios }}</td>
+                        <td>{{ empresa.pagos_pendientes }}</td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-ver-empresa"
+                                data-toggle="modal"
+                                data-target="#modalVerEmpresa"
+                                data-empresa-id="{{ empresa.id }}"
+                                data-empresa-nombre="{{ empresa.nombre }}"
+                                data-empresa-plan="{{ empresa.plan }}"
+                                data-empresa-activa="{% if empresa.activa %}True{% else %}False{% endif %}"
+                                data-empresa-vencimiento="{{ empresa.fecha_vencimiento|date:'Y-m-d' }}"
+                                data-empresa-notas="{{ empresa.notas|default:'' }}"
+                                title="Ver detalles"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-warning btn-sm btn-editar-empresa"
+                                data-toggle="modal"
+                                data-target="#modalEditarEmpresa"
+                                data-empresa-id="{{ empresa.id }}"
+                                data-empresa-plan="{{ empresa.plan }}"
+                                data-empresa-activa="{% if empresa.activa %}True{% else %}False{% endif %}"
+                                data-empresa-vencimiento="{{ empresa.fecha_vencimiento|date:'Y-m-d' }}"
+                                data-empresa-notas="{{ empresa.notas|default:'' }}"
+                                title="Editar empresa"
+                            >
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm btn-eliminar-empresa"
+                                data-toggle="modal"
+                                data-target="#modalEliminarEmpresa"
+                                data-empresa-id="{{ empresa.id }}"
+                                data-empresa-nombre="{{ empresa.nombre }}"
+                                data-empresa-activa="{% if empresa.activa %}True{% else %}False{% endif %}"
+                                title="Bloquear/Activar"
+                            >
+                                <i class="fas fa-lock"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay empresas registradas</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'empresas/empresas/modals/crea.html' %}
+    {% include 'empresas/empresas/modals/ver.html' %}
+    {% include 'empresas/empresas/modals/edita.html' %}
+    {% include 'empresas/empresas/modals/elimina.html' %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/empresas/empresas/modals/crea.js' %}"></script>
+    <script src="{% static 'js/empresas/empresas/modals/ver.js' %}"></script>
+    <script src="{% static 'js/empresas/empresas/modals/edita.js' %}"></script>
+    <script src="{% static 'js/empresas/empresas/modals/elimina.js' %}"></script>
+    <script src="{% static 'js/empresas/empresas/empresas.js' %}"></script>
+{% endblock %}

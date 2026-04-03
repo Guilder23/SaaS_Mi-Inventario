@@ -15,6 +15,12 @@
                     <span class="navbar-brand-text">Sistema Inventario</span>
                 </a>
             </div>
+            {% if request.empresa and not user.is_superuser %}
+            <div class="navbar-empresa" title="Empresa activa">
+                <i class="fas fa-building"></i>
+                <span>{{ request.empresa.nombre }}</span>
+            </div>
+            {% endif %}
         </div>
 
         <!-- DERECHA: Notificaciones y Usuario -->

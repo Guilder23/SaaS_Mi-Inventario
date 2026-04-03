@@ -1,10 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from apps.core.tenancy import EmpresaOwnedModel
 
-class Categoria(models.Model):
+
+class Categoria(EmpresaOwnedModel):
     """Modelo de Categoría de productos"""
-    nombre = models.CharField(max_length=100, unique=True)
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='categorias')
+    nombre = models.CharField(max_length=100)
     descripcion = models.TextField(blank=True, null=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='categorias_creadas')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
@@ -15,14 +18,18 @@ class Categoria(models.Model):
         verbose_name = 'Categoría'
         verbose_name_plural = 'Categorías'
         ordering = ['nombre']
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'nombre'], name='uniq_categoria_empresa_nombre'),
+        ]
 
     def __str__(self):
         return self.nombre
 
 
-class Contenedor(models.Model):
+class Contenedor(EmpresaOwnedModel):
     """Modelo de Contenedor de productos"""
-    nombre = models.CharField(max_length=120, unique=True)
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='contenedores')
+    nombre = models.CharField(max_length=120)
     descripcion = models.TextField(blank=True, null=True, verbose_name='Descripción')
     proveedor = models.CharField(max_length=150)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='contenedores_creados')
@@ -34,6 +41,9 @@ class Contenedor(models.Model):
         verbose_name = 'Contenedor'
         verbose_name_plural = 'Contenedores'
         ordering = ['nombre']
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'nombre'], name='uniq_contenedor_empresa_nombre'),
+        ]
 
     def __str__(self):
         return f"{self.nombre} - {self.proveedor}"
@@ -53,10 +63,11 @@ class Contenedor(models.Model):
         )['total'] or 0
 
 
-class ProductoContenedor(models.Model):
+class ProductoContenedor(EmpresaOwnedModel):
     """Modelo intermedio para manejar la relación entre Productos y Contenedores
     Un producto puede llegar en múltiples contenedores, cada uno con su propia cantidad"""
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='productos_contenedores')
     producto = models.ForeignKey('Producto', on_delete=models.CASCADE, 
                                 related_name='productos_contenedores',
                                 verbose_name='Producto')
@@ -85,12 +96,18 @@ class ProductoContenedor(models.Model):
     
     def save(self, *args, **kwargs):
         """Guarda el ProductoContenedor"""
+        if not self.empresa_id:
+            if self.producto_id:
+                self.empresa = self.producto.empresa
+            elif self.contenedor_id:
+                self.empresa = self.contenedor.empresa
         super().save(*args, **kwargs)
 
 
-class Producto(models.Model):
+class Producto(EmpresaOwnedModel):
     """Modelo de Producto"""
-    codigo = models.CharField(max_length=100, unique=True)
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='productos')
+    codigo = models.CharField(max_length=100)
     nombre = models.CharField(max_length=200)
     categoria = models.ForeignKey('Categoria', on_delete=models.SET_NULL, null=True, blank=True, related_name='productos')
     descripcion = models.TextField(blank=True, null=True)
@@ -119,6 +136,9 @@ class Producto(models.Model):
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['nombre']
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'codigo'], name='uniq_producto_empresa_codigo'),
+        ]
     
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
@@ -221,7 +241,7 @@ class Producto(models.Model):
             return True
 
 
-class HistorialProducto(models.Model):
+class HistorialProducto(EmpresaOwnedModel):
     """Historial de cambios en productos"""
     ACCIONES = (
         ('creacion', 'Creación'),
@@ -229,6 +249,7 @@ class HistorialProducto(models.Model):
         ('eliminacion', 'Eliminación'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='historial_productos')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='historial')
     accion = models.CharField(max_length=20, choices=ACCIONES)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -243,8 +264,13 @@ class HistorialProducto(models.Model):
     def __str__(self):
         return f"{self.producto.codigo} - {self.get_accion_display()} - {self.fecha}"
 
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.producto_id:
+            self.empresa = self.producto.empresa
+        super().save(*args, **kwargs)
 
-class ProductoDanado(models.Model):
+
+class ProductoDanado(EmpresaOwnedModel):
     """Registro de productos dañados"""
     ESTADOS = (
         ('pendiente', 'Pendiente'),
@@ -252,12 +278,21 @@ class ProductoDanado(models.Model):
         ('cerrado', 'Cerrado'),
     )
 
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='productos_danados')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     ubicacion = models.ForeignKey('usuarios.PerfilUsuario', on_delete=models.CASCADE)
     cantidad = models.IntegerField()
     comentario = models.TextField(blank=True, null=True)
     foto = models.ImageField(upload_to='danados/', blank=True, null=True)
     cantidad_recuperada = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id:
+            if self.ubicacion_id:
+                self.empresa = self.ubicacion.empresa
+            elif self.producto_id:
+                self.empresa = self.producto.empresa
+        super().save(*args, **kwargs)
     cantidad_repuesta = models.IntegerField(default=0)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
     registrado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

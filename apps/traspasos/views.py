@@ -44,6 +44,9 @@ def _asegurar_perfiles_deposito(almacen_id=None, tienda_id=None):
 
         if perfil_existente:
             cambios = []
+            if perfil_existente.empresa_id != deposito.empresa_id:
+                perfil_existente.empresa_id = deposito.empresa_id
+                cambios.append('empresa')
             if perfil_existente.tienda_id != deposito.tienda_id:
                 perfil_existente.tienda_id = deposito.tienda_id
                 cambios.append('tienda')
@@ -67,6 +70,7 @@ def _asegurar_perfiles_deposito(almacen_id=None, tienda_id=None):
 
         PerfilUsuario.objects.create(
             usuario=None,
+            empresa=deposito.empresa,
             rol='deposito',
             nombre_ubicacion=deposito.nombre,
             tienda_id=deposito.tienda_id,

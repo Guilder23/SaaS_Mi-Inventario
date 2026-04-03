@@ -1,0 +1,53 @@
+<div class="modal fade" id="modalEditarEmpresa" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit"></i> Editar Empresa
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEditarEmpresa" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="actualizar_empresa">
+                <input type="hidden" id="editarEmpresaId" name="empresa_id">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="editPlan" class="form-label">Plan</label>
+                            <select class="form-control" id="editPlan" name="plan">
+                                <option value="basico">Basico</option>
+                                <option value="pro">Pro</option>
+                                <option value="enterprise">Enterprise</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="editVencimiento" class="form-label">Fecha vencimiento</label>
+                            <input type="date" class="form-control" id="editVencimiento" name="fecha_vencimiento">
+                        </div>
+                        <div class="form-group col-md-4 d-flex align-items-end">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="editActiva" name="activa">
+                                <label class="custom-control-label" for="editActiva">Activa</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editNotas" class="form-label">Notas</label>
+                        <textarea class="form-control" id="editNotas" name="notas" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

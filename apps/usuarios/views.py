@@ -17,6 +17,8 @@ def _es_usuario_tecnico_deposito(usuario):
 def index(request):
     """Página de inicio - redirige al dashboard si está autenticado"""
     if request.user.is_authenticated:
+        if request.user.is_superuser:
+            return redirect('empresas_list')
         return redirect('dashboard')
     return render(request, 'inicio/index.html')
 
@@ -36,6 +38,10 @@ def dashboard(request):
     from apps.ventas.models import Venta, DetalleVenta
     from apps.vendedores.models import Vendedor
     
+    # Super admin solo usa el panel SaaS
+    if request.user.is_superuser:
+        return redirect('empresas_list')
+
     # Determinar qué dashboard mostrar según el rol del usuario
     if request.user.is_superuser:
         template = 'dashboard/admin_dashboard.html'
@@ -108,7 +114,13 @@ def dashboard(request):
     
     # ======= USUARIOS Y VENDEDORES =======
     # Total usuarios activos del sistema (excluyendo usuarios técnicos de depósitos)
-    total_usuarios = User.objects.filter(is_active=True).exclude(username__startswith='deposito_auto_').count()
+    if request.user.is_superuser:
+        total_usuarios = User.objects.filter(is_active=True).exclude(username__startswith='deposito_auto_').count()
+    else:
+        total_usuarios = User.objects.filter(
+            is_active=True,
+            perfil__empresa=getattr(request, 'empresa', None)
+        ).exclude(username__startswith='deposito_auto_').count()
     # Total vendedores activos desde el módulo de gestión de vendedores
     total_vendedores = Vendedor.objects.filter(estado='activo').count()
     
@@ -137,6 +149,8 @@ def dashboard(request):
 @login_required
 def listar_usuarios(request):
     """Listar todos los usuarios con filtros"""
+    if request.user.is_superuser:
+        return redirect('empresas_panel')
     from apps.almacenes.models import Almacen
     from apps.tiendas.models import Tienda
     
@@ -146,7 +160,10 @@ def listar_usuarios(request):
     rol = request.GET.get('rol', '')
     
     # Query base - incluir perfil con select_related para optimización
-    usuarios = User.objects.select_related('perfil').exclude(username__startswith='deposito_auto_').order_by('-date_joined')
+    usuarios = User.objects.select_related('perfil').exclude(username__startswith='deposito_auto_')
+    if not request.user.is_superuser:
+        usuarios = usuarios.filter(perfil__empresa=getattr(request, 'empresa', None))
+    usuarios = usuarios.order_by('-date_joined')
     
     # Aplicar filtros
     if buscar:
@@ -230,6 +247,11 @@ def crear_usuario(request):
                 messages.error(request, 'Debe seleccionar una tienda para este rol')
                 return redirect('listar_usuarios')
             
+            empresa = getattr(request, 'empresa', None)
+            if not empresa:
+                messages.error(request, 'No tienes una empresa asignada')
+                return redirect('listar_usuarios')
+
             # Crear usuario
             usuario = User.objects.create_user(
                 username=username,
@@ -239,7 +261,7 @@ def crear_usuario(request):
                 last_name=last_name,
                 is_active=is_active,
                 is_staff=(rol == 'administrador'),
-                is_superuser=(rol == 'administrador')
+                is_superuser=False
             )
             
             # Obtener almacén y tienda si aplica
@@ -253,6 +275,14 @@ def crear_usuario(request):
             if tienda_id:
                 from apps.tiendas.models import Tienda
                 tienda = Tienda.objects.filter(id=tienda_id).first()
+
+            if empresa:
+                if almacen and almacen.empresa_id != empresa.id:
+                    messages.error(request, 'El almacén no pertenece a tu empresa')
+                    return redirect('listar_usuarios')
+                if tienda and tienda.empresa_id != empresa.id:
+                    messages.error(request, 'La tienda no pertenece a tu empresa')
+                    return redirect('listar_usuarios')
             
             # Crear perfil de usuario
             nombre_ubicacion = ''
@@ -263,6 +293,7 @@ def crear_usuario(request):
             
             PerfilUsuario.objects.create(
                 usuario=usuario,
+                empresa=empresa,
                 rol=rol,
                 nombre_ubicacion=nombre_ubicacion,
                 almacen=almacen,
@@ -284,7 +315,10 @@ def crear_usuario(request):
 def obtener_usuario(request, id):
     """Obtener datos de un usuario en formato JSON"""
     try:
-        usuario = get_object_or_404(User, id=id)
+        usuarios_qs = User.objects
+        if not request.user.is_superuser:
+            usuarios_qs = usuarios_qs.filter(perfil__empresa=getattr(request, 'empresa', None))
+        usuario = get_object_or_404(usuarios_qs, id=id)
         if _es_usuario_tecnico_deposito(usuario):
             return JsonResponse({'error': 'Usuario no disponible en esta vista'}, status=404)
         perfil = usuario.perfil if hasattr(usuario, 'perfil') else None
@@ -341,7 +375,10 @@ def obtener_usuario(request, id):
 @require_http_methods(["GET", "POST"])
 def editar_usuario(request, id):
     """Editar usuario existente"""
-    usuario = get_object_or_404(User.objects.exclude(username__startswith='deposito_auto_'), id=id)
+    usuarios_qs = User.objects.exclude(username__startswith='deposito_auto_')
+    if not request.user.is_superuser:
+        usuarios_qs = usuarios_qs.filter(perfil__empresa=getattr(request, 'empresa', None))
+    usuario = get_object_or_404(usuarios_qs, id=id)
     
     if request.method == 'POST':
         try:
@@ -369,7 +406,8 @@ def editar_usuario(request, id):
                 
                 # Actualizar permisos según rol
                 usuario.is_staff = (nuevo_rol == 'administrador')
-                usuario.is_superuser = (nuevo_rol == 'administrador')
+                if not usuario.is_superuser:
+                    usuario.is_superuser = False
                 
                 # Actualizar perfil si existe, sino crear
                 if hasattr(usuario, 'perfil'):
@@ -394,9 +432,21 @@ def editar_usuario(request, id):
                     
                     almacen = Almacen.objects.filter(id=almacen_id).first() if almacen_id else None
                     tienda = Tienda.objects.filter(id=tienda_id).first() if tienda_id else None
+
+                    empresa = getattr(request, 'empresa', None)
+                    if not empresa:
+                        messages.error(request, 'No tienes una empresa asignada')
+                        return redirect('listar_usuarios')
+                    if almacen and almacen.empresa_id != empresa.id:
+                        messages.error(request, 'El almacén no pertenece a tu empresa')
+                        return redirect('listar_usuarios')
+                    if tienda and tienda.empresa_id != empresa.id:
+                        messages.error(request, 'La tienda no pertenece a tu empresa')
+                        return redirect('listar_usuarios')
                     
                     PerfilUsuario.objects.create(
                         usuario=usuario,
+                        empresa=empresa,
                         rol=nuevo_rol,
                         nombre_ubicacion=almacen.nombre or tienda.nombre or '',
                         almacen=almacen,
@@ -472,7 +522,10 @@ def obtener_ubicacion_usuario(request):
 @require_http_methods(["POST"])
 def bloquear_usuario(request, id):
     """Bloquear/desbloquear usuario"""
-    usuario = get_object_or_404(User.objects.exclude(username__startswith='deposito_auto_'), id=id)
+    usuarios_qs = User.objects.exclude(username__startswith='deposito_auto_')
+    if not request.user.is_superuser:
+        usuarios_qs = usuarios_qs.filter(perfil__empresa=getattr(request, 'empresa', None))
+    usuario = get_object_or_404(usuarios_qs, id=id)
     
     try:
         # Cambiar estado

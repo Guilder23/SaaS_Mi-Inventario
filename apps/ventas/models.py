@@ -5,7 +5,9 @@ from django.contrib.auth.models import User
 from apps.productos.models import Producto
 from apps.usuarios.models import PerfilUsuario
 
-class Venta(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class Venta(EmpresaOwnedModel):
     """Registro de ventas"""
     ESTADOS = (
         ('pendiente', 'Pendiente'),
@@ -25,6 +27,7 @@ class Venta(models.Model):
         ('porcentaje', 'Porcentaje'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='ventas')
     codigo = models.CharField(max_length=50, unique=True)
     ubicacion = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE)
     cliente = models.CharField(max_length=200)
@@ -57,8 +60,13 @@ class Venta(models.Model):
     def __str__(self):
         return f"{self.codigo} - {self.cliente}"
 
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.ubicacion_id:
+            self.empresa = self.ubicacion.empresa
+        super().save(*args, **kwargs)
 
-class DetalleVenta(models.Model):
+
+class DetalleVenta(EmpresaOwnedModel):
     """Detalle de productos en la venta"""
     TIPOS_VENDEDOR = (
         ('', 'Sin especificar'),
@@ -73,6 +81,7 @@ class DetalleVenta(models.Model):
         ('mayor', 'Mayor'),
     )
 
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='detalles_ventas')
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -89,9 +98,15 @@ class DetalleVenta(models.Model):
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad}"
 
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.venta_id:
+            self.empresa = self.venta.empresa
+        super().save(*args, **kwargs)
 
-class AmortizacionCredito(models.Model):
+
+class AmortizacionCredito(EmpresaOwnedModel):
     """Amortizaciones para ventas a crédito"""
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='amortizaciones_credito')
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='amortizaciones')
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     moneda = models.CharField(max_length=10, choices=[('BOB', 'Bolivianos'), ('USD', 'Dólares')], default='BOB', help_text='Moneda en la que se realiza la amortización')
@@ -108,8 +123,13 @@ class AmortizacionCredito(models.Model):
     def __str__(self):
         return f"{self.venta.codigo} - S/ {self.monto}"
 
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.venta_id:
+            self.empresa = self.venta.empresa
+        super().save(*args, **kwargs)
 
-class SolicitudAnulacionVenta(models.Model):
+
+class SolicitudAnulacionVenta(EmpresaOwnedModel):
     """Solicitud de anulación de venta (enviada por tiendas a almacén)"""
     ESTADOS = (
         ('pendiente', 'Pendiente'),
@@ -117,6 +137,7 @@ class SolicitudAnulacionVenta(models.Model):
         ('rechazada', 'Rechazada'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='solicitudes_anulacion')
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='solicitudes_anulacion')
     solicitado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='solicitudes_anulacion_creadas')
     estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
@@ -133,3 +154,8 @@ class SolicitudAnulacionVenta(models.Model):
     
     def __str__(self):
         return f"Solicitud anulación {self.venta.codigo} - {self.get_estado_display()}"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.venta_id:
+            self.empresa = self.venta.empresa
+        super().save(*args, **kwargs)

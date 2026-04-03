@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class Deposito(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class Deposito(EmpresaOwnedModel):
     """Modelo para gestión de depósitos pertenecientes a tiendas"""
     
     ESTADO_CHOICES = [
@@ -17,7 +19,8 @@ class Deposito(models.Model):
         ('temporal', 'Temporal'),
     ]
     
-    nombre = models.CharField(max_length=200, unique=True, verbose_name='Nombre del Depósito')
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='depositos')
+    nombre = models.CharField(max_length=200, verbose_name='Nombre del Depósito')
     descripcion = models.TextField(blank=True, null=True, verbose_name='Descripción')
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='principal', 
                            verbose_name='Tipo de Depósito')
@@ -48,7 +51,15 @@ class Deposito(models.Model):
         verbose_name_plural = 'Depósitos'
         ordering = ['-fecha_creacion']
         db_table = 'depositos'
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'nombre'], name='uniq_deposito_empresa_nombre'),
+        ]
     
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.tienda_id:
+            self.empresa = self.tienda.empresa
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.nombre}"
     

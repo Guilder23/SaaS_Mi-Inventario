@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from apps.productos.models import Producto
 from apps.usuarios.models import PerfilUsuario
+
+from apps.core.tenancy import EmpresaOwnedModel
 import uuid
 
-class Traspaso(models.Model):
+class Traspaso(EmpresaOwnedModel):
     """Registro de traspasos entre ubicaciones"""
     ESTADOS = (
         ('pendiente', 'Pendiente'),
@@ -20,6 +22,7 @@ class Traspaso(models.Model):
         ('devolucion', 'Devolución'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='traspasos')
     codigo = models.CharField(max_length=50, unique=True)
     tipo = models.CharField(max_length=20, choices=TIPOS, default='normal')
     origen = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE, related_name='traspasos_enviados')
@@ -40,6 +43,11 @@ class Traspaso(models.Model):
     
     def __str__(self):
         return f"{self.codigo} - {self.get_tipo_display()}"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.origen_id:
+            self.empresa = self.origen.empresa
+        super().save(*args, **kwargs)
     
     @classmethod
     def generar_codigo(cls):
@@ -65,8 +73,9 @@ class Traspaso(models.Model):
         return total
 
 
-class DetalleTraspaso(models.Model):
+class DetalleTraspaso(EmpresaOwnedModel):
     """Detalle de productos en el traspaso"""
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='detalles_traspasos')
     traspaso = models.ForeignKey(Traspaso, on_delete=models.CASCADE, related_name='detalles')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -78,6 +87,11 @@ class DetalleTraspaso(models.Model):
     
     def __str__(self):
         return f"{self.traspaso.codigo} - {self.producto.nombre}"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.traspaso_id:
+            self.empresa = self.traspaso.empresa
+        super().save(*args, **kwargs)
     
     @property
     def subtotal(self):

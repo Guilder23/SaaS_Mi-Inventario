@@ -1,0 +1,26 @@
+<div class="modal fade" id="modalEliminarEmpresa" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-lock"></i> Cambiar Estado
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEliminarEmpresa" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle_empresa">
+                <input type="hidden" id="eliminarEmpresaId" name="empresa_id">
+                <div class="modal-body">
+                    <p id="eliminarEmpresaTexto" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

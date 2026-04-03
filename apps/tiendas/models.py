@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class Tienda(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class Tienda(EmpresaOwnedModel):
     """Modelo para gestión de tiendas físicas"""
     
     ESTADO_CHOICES = [
@@ -17,7 +19,8 @@ class Tienda(models.Model):
         ('punto_venta', 'Punto de Venta'),
     ]
     
-    nombre = models.CharField(max_length=200, unique=True, verbose_name='Nombre de la Tienda')
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='tiendas')
+    nombre = models.CharField(max_length=200, verbose_name='Nombre de la Tienda')
     descripcion = models.TextField(blank=True, null=True, verbose_name='Descripción')
     tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='sucursal', 
                            verbose_name='Tipo de Tienda')
@@ -48,7 +51,15 @@ class Tienda(models.Model):
         verbose_name_plural = 'Tiendas'
         ordering = ['-fecha_creacion']
         db_table = 'tiendas'
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'nombre'], name='uniq_tienda_empresa_nombre'),
+        ]
     
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.almacen_id:
+            self.empresa = self.almacen.empresa
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.nombre}"
     

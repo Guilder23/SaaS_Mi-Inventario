@@ -1,0 +1,26 @@
+<div class="modal fade" id="modalValidarPago" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-clipboard-check"></i> Validar Pago
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formValidarPago" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="validarPagoAction" value="">
+                <input type="hidden" name="pago_id" id="validarPagoId" value="">
+                <div class="modal-body">
+                    <p id="validarPagoTexto" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="validarPagoBtn">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

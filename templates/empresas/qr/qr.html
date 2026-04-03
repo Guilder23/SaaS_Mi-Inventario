@@ -1,0 +1,44 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Configuracion QR{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/empresas/qr/qr.css' %}">
+    <link rel="stylesheet" href="{% static 'css/empresas/qr/modals/edita.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-qrcode"></i> Configuracion QR
+            </h1>
+            <p class="page-subtitle">Configura el QR de pagos</p>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalEditarQr">
+            <i class="fas fa-pen"></i> Actualizar QR
+        </button>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="card-body text-center">
+            {% if qr_config and qr_config.qr_imagen %}
+                <img id="qrActual" src="{{ qr_config.qr_imagen.url }}" alt="QR" class="img-fluid mb-3" style="max-width: 280px;">
+            {% else %}
+                <p class="text-muted">QR no configurado.</p>
+                <img id="qrActual" src="" alt="QR" class="img-fluid mb-3" style="max-width: 280px; display: none;">
+            {% endif %}
+            <p class="text-muted">{{ qr_config.instrucciones|default:'' }}</p>
+        </div>
+    </div>
+
+    {% include 'empresas/qr/modals/edita.html' %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/empresas/qr/modals/edita.js' %}"></script>
+    <script src="{% static 'js/empresas/qr/qr.js' %}"></script>
+{% endblock %}

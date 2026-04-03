@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-class PerfilUsuario(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class PerfilUsuario(EmpresaOwnedModel):
     """Perfil extendido del usuario"""
     ROLES = (
         ('administrador', 'Administrador'),
@@ -11,6 +13,7 @@ class PerfilUsuario(models.Model):
         ('tienda_online', 'Tienda Online'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='usuarios')
     usuario = models.OneToOneField(User, on_delete=models.SET_NULL, related_name='perfil', null=True, blank=True)
     rol = models.CharField(max_length=20, choices=ROLES)
     nombre_ubicacion = models.CharField(max_length=200, blank=True, null=True, help_text='Nombre de la tienda/almacén/depósito')

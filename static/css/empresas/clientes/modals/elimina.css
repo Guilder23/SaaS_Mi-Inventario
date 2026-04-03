@@ -1,0 +1,18 @@
+/* ============================================================================
+   ESTILOS PARA MODAL CAMBIAR ESTADO CLIENTE
+   ============================================================================ */
+
+#modalEliminarCliente .modal-header {
+    background: #991b1b;
+    color: white;
+    padding: 1rem 1.5rem;
+}
+
+#modalEliminarCliente .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+#modalEliminarCliente .modal-body {
+    padding: 1.25rem 1.5rem;
+}

@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class Almacen(models.Model):
+from apps.core.tenancy import EmpresaOwnedModel
+
+class Almacen(EmpresaOwnedModel):
     """Modelo para gestión de almacenes"""
     
     ESTADO_CHOICES = [
@@ -11,7 +13,8 @@ class Almacen(models.Model):
         ('mantenimiento', 'En Mantenimiento'),
     ]
     
-    nombre = models.CharField(max_length=200, unique=True, verbose_name='Nombre del Almacén')
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='almacenes')
+    nombre = models.CharField(max_length=200, verbose_name='Nombre del Almacén')
     descripcion = models.TextField(blank=True, null=True, verbose_name='Descripción')
     
     # Ubicación
@@ -38,6 +41,9 @@ class Almacen(models.Model):
         verbose_name_plural = 'Almacenes'
         ordering = ['-fecha_creacion']
         db_table = 'almacenes'
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'nombre'], name='uniq_almacen_empresa_nombre'),
+        ]
     
     def __str__(self):
         return f"{self.nombre}"

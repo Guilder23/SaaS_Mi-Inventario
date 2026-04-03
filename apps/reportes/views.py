@@ -127,7 +127,10 @@ def reporte_ventas(request):
     ventas_anuladas = ventas.filter(estado='anulada').count()
     
     # Obtener datos para los selectores
-    vendedores = User.objects.filter(ventas__isnull=False).distinct().order_by('first_name', 'username')
+    vendedores = User.objects.filter(ventas__isnull=False)
+    if not request.user.is_superuser:
+        vendedores = vendedores.filter(ventas__empresa=getattr(request, 'empresa', None))
+    vendedores = vendedores.distinct().order_by('first_name', 'username')
     
     # Contar filtros activos
     filtros_activos = sum([
@@ -271,9 +274,10 @@ def reporte_traspasos(request):
         traspasos_recibidos__isnull=False
     ).distinct().order_by('nombre_ubicacion')
     
-    usuarios_creadores = User.objects.filter(
-        traspasos_creados__isnull=False
-    ).distinct().order_by('first_name', 'username')
+    usuarios_creadores = User.objects.filter(traspasos_creados__isnull=False)
+    if not request.user.is_superuser:
+        usuarios_creadores = usuarios_creadores.filter(traspasos_creados__empresa=getattr(request, 'empresa', None))
+    usuarios_creadores = usuarios_creadores.distinct().order_by('first_name', 'username')
     
     # Contar filtros activos
     filtros_activos = sum([

@@ -1,0 +1,18 @@
+/* ============================================================================
+   ESTILOS PARA MODAL VALIDAR PAGO
+   ============================================================================ */
+
+#modalValidarPago .modal-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 1.5rem;
+}
+
+#modalValidarPago .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+#modalValidarPago .modal-body {
+    padding: 1.25rem 1.5rem;
+}

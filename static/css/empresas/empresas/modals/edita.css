@@ -1,0 +1,36 @@
+/* ============================================================================
+   ESTILOS PARA MODAL EDITAR EMPRESA
+   ============================================================================ */
+
+#modalEditarEmpresa .modal-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 3px solid #065f46;
+}
+
+#modalEditarEmpresa .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+#modalEditarEmpresa .modal-body {
+    padding: 1.25rem 1.5rem;
+}
+
+#modalEditarEmpresa .modal-footer {
+    padding: 0.875rem 1.5rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #d1d5db;
+}
+
+#modalEditarEmpresa .btn-warning {
+    background-color: #1e3a8a;
+    border-color: #1e3a8a;
+    color: white;
+}
+
+#modalEditarEmpresa .btn-warning:hover {
+    background-color: #1e40af;
+    border-color: #1e40af;
+}

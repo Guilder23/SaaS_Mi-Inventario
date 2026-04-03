@@ -3,8 +3,10 @@ from django.contrib.auth.models import User
 from apps.productos.models import Producto
 from apps.usuarios.models import PerfilUsuario
 
+from apps.core.tenancy import EmpresaOwnedModel
 
-class Devolucion(models.Model):
+
+class Devolucion(EmpresaOwnedModel):
     """Registro de devoluciones de productos"""
     ESTADOS = (
         ('pendiente', 'Pendiente'),
@@ -12,6 +14,7 @@ class Devolucion(models.Model):
         ('cerrado', 'Cerrado'),
     )
 
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='devoluciones')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     ubicacion = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -31,6 +34,11 @@ class Devolucion(models.Model):
     
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad} unidades"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.ubicacion_id:
+            self.empresa = self.ubicacion.empresa
+        super().save(*args, **kwargs)
 
     @property
     def cantidad_pendiente(self):

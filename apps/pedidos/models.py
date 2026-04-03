@@ -2,10 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from apps.productos.models import Producto
 from apps.usuarios.models import PerfilUsuario
+
+from apps.core.tenancy import EmpresaOwnedModel
 import uuid
 from datetime import datetime
 
-class Pedido(models.Model):
+class Pedido(EmpresaOwnedModel):
     """Registro de pedidos entre ubicaciones"""
     ESTADOS = (
         ('pendiente', 'Pendiente'),
@@ -15,6 +17,7 @@ class Pedido(models.Model):
         ('cancelado', 'Cancelado'),
     )
     
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='pedidos')
     codigo = models.CharField(max_length=50, unique=True)
     solicitante = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE, related_name='pedidos_realizados')
     proveedor = models.ForeignKey(PerfilUsuario, on_delete=models.CASCADE, related_name='pedidos_recibidos')
@@ -32,6 +35,11 @@ class Pedido(models.Model):
     def __str__(self):
         return f"{self.codigo} - {self.solicitante} → {self.proveedor}"
 
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.solicitante_id:
+            self.empresa = self.solicitante.empresa
+        super().save(*args, **kwargs)
+
     @classmethod
     def generar_codigo(cls):
         prefijo = 'PED'
@@ -44,8 +52,9 @@ class Pedido(models.Model):
         return self.detalles.count()
 
 
-class DetallePedido(models.Model):
+class DetallePedido(EmpresaOwnedModel):
     """Detalle de productos en el pedido"""
+    empresa = models.ForeignKey('empresas.Empresa', on_delete=models.PROTECT, null=True, blank=True, related_name='detalles_pedidos')
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='detalles')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
@@ -56,3 +65,8 @@ class DetallePedido(models.Model):
     
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad}"
+
+    def save(self, *args, **kwargs):
+        if not self.empresa_id and self.pedido_id:
+            self.empresa = self.pedido.empresa
+        super().save(*args, **kwargs)

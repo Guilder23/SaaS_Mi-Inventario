@@ -37,6 +37,33 @@
         });
     }
 
+    /**
+     * Evitar warnings aria-hidden en modales moviendo el foco
+     */
+    function gestionarFocusModals() {
+        let ultimoFoco = null;
+
+        document.addEventListener('show.bs.modal', function() {
+            ultimoFoco = document.activeElement;
+        });
+
+        document.addEventListener('hide.bs.modal', function(event) {
+            const modal = event.target;
+            if (modal && modal.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+        });
+
+        document.addEventListener('hidden.bs.modal', function() {
+            if (ultimoFoco && typeof ultimoFoco.focus === 'function') {
+                ultimoFoco.focus();
+            }
+            ultimoFoco = null;
+        });
+    }
+
+    gestionarFocusModals();
+
     // Inicializar cuando el DOM esté listo
     if (document.readyState === 'loading') {
         console.log('base.js: Esperando DOMContentLoaded');

@@ -23,33 +23,43 @@
         </button>
     </div>
 
-    <div class="card card-tabla mb-4">
-        <div class="card-header">
-            <h6 class="card-title mb-0"><i class="fas fa-qrcode"></i> QR de pago</h6>
+    {% if mostrar_qr %}
+        <div class="card card-tabla mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0"><i class="fas fa-qrcode"></i> QR de pago</h6>
+            </div>
+            <div class="card-body text-center">
+                {% if qr_config and qr_config.qr_imagen %}
+                    <img src="{{ qr_config.qr_imagen.url }}" alt="QR" class="img-fluid mb-3" style="max-width: 280px;">
+                {% else %}
+                    <p class="text-muted">QR no configurado.</p>
+                {% endif %}
+                <p class="text-muted">{{ qr_config.instrucciones|default:'' }}</p>
+            </div>
         </div>
-        <div class="card-body text-center">
-            {% if qr_config and qr_config.qr_imagen %}
-                <img src="{{ qr_config.qr_imagen.url }}" alt="QR" class="img-fluid mb-3" style="max-width: 280px;">
-            {% else %}
-                <p class="text-muted">QR no configurado.</p>
-            {% endif %}
-            <p class="text-muted">{{ qr_config.instrucciones|default:'' }}</p>
-        </div>
-    </div>
+    {% endif %}
 
-    <div class="card card-licencia mb-4">
+    <div class="card card-licencia mb-4 licencia-{{ alerta_licencia|default:'ok' }}">
         <div class="card-body">
             <div class="licencia-header">
                 <div>
                     <h6 class="licencia-title mb-1"><i class="fas fa-shield-alt"></i> Licencia activa</h6>
                     <p class="licencia-subtitle mb-0">Vigencia de tu plan</p>
                 </div>
-                {% if estado_licencia == 'vigente' %}
-                    <span class="badge-estado badge-estado-vigente">Vigente</span>
-                {% elif estado_licencia == 'vencida' %}
-                    <span class="badge-estado badge-estado-vencida">Vencida</span>
+                {% if alerta_licencia == 'danger' %}
+                    <span class="badge-estado badge-estado-critica">
+                        {% if estado_licencia == 'vigente' %}Vigente{% elif estado_licencia == 'vencida' %}Vencida{% else %}Sin pago{% endif %}
+                    </span>
+                {% elif alerta_licencia == 'warning' %}
+                    <span class="badge-estado badge-estado-alerta">Vigente</span>
                 {% else %}
-                    <span class="badge-estado badge-estado-sin-pago">Sin pago</span>
+                    {% if estado_licencia == 'vigente' %}
+                        <span class="badge-estado badge-estado-vigente">Vigente</span>
+                    {% elif estado_licencia == 'vencida' %}
+                        <span class="badge-estado badge-estado-vencida">Vencida</span>
+                    {% else %}
+                        <span class="badge-estado badge-estado-sin-pago">Sin pago</span>
+                    {% endif %}
                 {% endif %}
             </div>
             <div class="licencia-info">

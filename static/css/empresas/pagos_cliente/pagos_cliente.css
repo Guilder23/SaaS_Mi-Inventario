@@ -122,6 +122,23 @@
     border-radius: 0.5rem;
 }
 
+/* Estados visuales de la licencia */
+.card-licencia.licencia-ok {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-color: #6ee7b7;
+}
+
+.card-licencia.licencia-warning {
+    border-color: #fbbf24;
+    background: #fffbeb;
+}
+
+.card-licencia.licencia-danger {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
 .licencia-header {
     display: flex;
     align-items: center;
@@ -166,6 +183,18 @@
     background-color: #e0f2fe;
     color: #1e40af;
     border-color: #93c5fd;
+}
+
+.badge-estado-alerta {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-color: #fbbf24;
+}
+
+.badge-estado-critica {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
 }
 
 @media (max-width: 768px) {

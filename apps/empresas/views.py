@@ -53,6 +53,19 @@ def pagos_empresa(request):
         dias_restantes = (fecha_vencimiento - hoy).days
         estado_licencia = "vigente" if dias_restantes >= 0 else "vencida"
 
+    # Reglas de UI:
+    # - Mostrar QR si NO está pagado (sin_pago o vencida) o si faltan 5 días o menos.
+    # - Color amarillo si faltan 5..3 días; rojo si faltan 2 o menos (incluye vencida/sin pago).
+    mostrar_qr = (estado_licencia != "vigente") or (dias_restantes is not None and dias_restantes <= 5)
+
+    alerta_licencia = "ok"
+    if estado_licencia != "vigente":
+        alerta_licencia = "danger"
+    elif dias_restantes is not None and dias_restantes <= 2:
+        alerta_licencia = "danger"
+    elif dias_restantes is not None and dias_restantes <= 5:
+        alerta_licencia = "warning"
+
     context = {
         "empresa": empresa,
         "qr_config": qr_config,
@@ -60,6 +73,8 @@ def pagos_empresa(request):
         "fecha_vencimiento": fecha_vencimiento,
         "dias_restantes": dias_restantes,
         "estado_licencia": estado_licencia,
+        "mostrar_qr": mostrar_qr,
+        "alerta_licencia": alerta_licencia,
     }
     return render(request, "empresas/pagos_cliente/pagos_cliente.html", context)
 

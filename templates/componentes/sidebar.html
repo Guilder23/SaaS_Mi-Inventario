@@ -55,6 +55,12 @@
                     <span>Notificaciones</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{% url 'comunicados_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'comunicados_list' %}active{% endif %}" title="Comunicados">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Comunicados</span>
+                </a>
+            </li>
             {% else %}
             <!-- Dashboard - Todos los usuarios -->
             <li class="sidebar-item">

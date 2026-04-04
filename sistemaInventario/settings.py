@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'apps.devoluciones',
     'apps.moneda',
     'apps.planes',
+    'apps.comunicados',
 ]
 
 MIDDLEWARE = [

@@ -3,6 +3,8 @@
    ============================================================================ */
 
 function inicializarNavbar() {
+    const comunicadosBtn = document.getElementById('comunicadosBtn');
+    const comunicadosDropdown = document.getElementById('comunicadosDropdown');
     const notificacionesBtn = document.getElementById('notificacionesBtn');
     const notificacionesDropdown = document.getElementById('notificacionesDropdown');
     const usuarioBtn = document.getElementById('usuarioBtn');
@@ -11,12 +13,47 @@ function inicializarNavbar() {
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const marcarTodasBtn = document.getElementById('marcarTodasBtn');
+    const marcarTodosComunicadosBtn = document.getElementById('marcarTodosComunicadosBtn');
 
     // Cargar notificaciones al iniciar
     cargarNotificaciones();
+
+    // Cargar comunicados al iniciar
+    cargarComunicados();
     
     // Recargar notificaciones cada 10 segundos
     setInterval(cargarNotificaciones, 10000);
+
+    // Recargar comunicados cada 10 segundos
+    setInterval(cargarComunicados, 10000);
+
+    // Toggle dropdown de comunicados
+    if (comunicadosBtn && comunicadosDropdown) {
+        comunicadosBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Cerrar dropdown de usuario si está abierto
+            if (usuarioDropdown) {
+                usuarioDropdown.classList.remove('show');
+            }
+
+            // Cerrar dropdown de notificaciones si está abierto
+            if (notificacionesDropdown) {
+                notificacionesDropdown.classList.remove('show');
+                notificacionesDropdown.classList.remove('mostrar');
+            }
+
+            // Toggle dropdown de comunicados
+            comunicadosDropdown.classList.toggle('show');
+            comunicadosDropdown.classList.toggle('mostrar');
+
+            // Recargar cuando se abre
+            if (comunicadosDropdown.classList.contains('show')) {
+                cargarComunicados();
+            }
+        });
+    }
 
     // Toggle dropdown de notificaciones
     if (notificacionesBtn && notificacionesDropdown) {
@@ -27,6 +64,12 @@ function inicializarNavbar() {
             // Cerrar dropdown de usuario si está abierto
             if (usuarioDropdown) {
                 usuarioDropdown.classList.remove('show');
+            }
+
+            // Cerrar dropdown de comunicados si está abierto
+            if (comunicadosDropdown) {
+                comunicadosDropdown.classList.remove('show');
+                comunicadosDropdown.classList.remove('mostrar');
             }
             
             // Toggle dropdown de notificaciones
@@ -46,6 +89,12 @@ function inicializarNavbar() {
             e.preventDefault();
             e.stopPropagation();
             
+            // Cerrar dropdown de comunicados si está abierto
+            if (comunicadosDropdown) {
+                comunicadosDropdown.classList.remove('show');
+                comunicadosDropdown.classList.remove('mostrar');
+            }
+
             // Cerrar dropdown de notificaciones si está abierto
             if (notificacionesDropdown) {
                 notificacionesDropdown.classList.remove('show');
@@ -62,6 +111,13 @@ function inicializarNavbar() {
 
     // Cerrar dropdowns al hacer click fuera
     document.addEventListener('click', function(e) {
+        if (!e.target.closest('.navbar-comunicados')) {
+            if (comunicadosDropdown) {
+                comunicadosDropdown.classList.remove('show');
+                comunicadosDropdown.classList.remove('mostrar');
+            }
+        }
+
         if (!e.target.closest('.navbar-notificaciones')) {
             if (notificacionesDropdown) {
                 notificacionesDropdown.classList.remove('show');
@@ -79,6 +135,10 @@ function inicializarNavbar() {
     // Cerrar dropdowns al presionar ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
+            if (comunicadosDropdown) {
+                comunicadosDropdown.classList.remove('show');
+                comunicadosDropdown.classList.remove('mostrar');
+            }
             if (notificacionesDropdown) {
                 notificacionesDropdown.classList.remove('show');
                 notificacionesDropdown.classList.remove('mostrar');
@@ -96,6 +156,11 @@ function inicializarNavbar() {
     // Botón marcar todas como leídas
     if (marcarTodasBtn) {
         marcarTodasBtn.addEventListener('click', marcarTodasLeidas);
+    }
+
+    // Botón marcar todos los comunicados como leídos
+    if (marcarTodosComunicadosBtn) {
+        marcarTodosComunicadosBtn.addEventListener('click', marcarTodosComunicadosLeidos);
     }
 }
 
@@ -209,6 +274,118 @@ function marcarTodasLeidas() {
         }
     })
     .catch(error => console.error('Error al marcar todas como leídas:', error));
+}
+
+// ============================================================================
+// FUNCIONES PARA COMUNICADOS (BROADCAST)
+// ============================================================================
+
+function cargarComunicados() {
+    fetch('/comunicados/obtener/')
+        .then(response => response.json())
+        .then(data => {
+            actualizarBadgeComunicados(data.no_leidas);
+            actualizarListaComunicados(data.comunicados || []);
+        })
+        .catch(error => console.error('Error al cargar comunicados:', error));
+}
+
+function actualizarBadgeComunicados(cantidad) {
+    const badge = document.getElementById('comunicadosBadge');
+    const contador = document.getElementById('comunicadosContador');
+
+    if (badge) {
+        badge.textContent = cantidad;
+        if (cantidad > 0) {
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    if (contador) {
+        const plural = cantidad === 1 ? 'nuevo' : 'nuevos';
+        contador.textContent = `${cantidad} ${plural}`;
+    }
+}
+
+function actualizarListaComunicados(comunicados) {
+    const dropdownItems = document.getElementById('comunicadosLista');
+    if (!dropdownItems) return;
+
+    dropdownItems.innerHTML = '';
+
+    if (comunicados.length === 0) {
+        dropdownItems.innerHTML = '<div class="no-notificaciones"><p>No hay comunicados</p></div>';
+        return;
+    }
+
+    comunicados.forEach(com => {
+        const item = document.createElement('a');
+        item.href = com.url;
+        item.className = `dropdown-item ${com.leida ? 'notificacion-leida' : 'notificacion-nueva'}`;
+        item.dataset.id = com.id;
+
+        const iconClasses = String(com.icono || 'fa-bullhorn bg-info').split(' ');
+        const bgColor = iconClasses.length > 1 ? iconClasses[1] : 'bg-info';
+
+        item.innerHTML = `
+            <div class="notification-icon ${bgColor}">
+                <i class="fas ${iconClasses[0]}"></i>
+            </div>
+            <div class="notification-content">
+                <strong>${com.titulo}</strong>
+                <p>${com.mensaje}</p>
+                <small>${com.tiempo}</small>
+            </div>
+        `;
+
+        item.addEventListener('click', function(e) {
+            if (!com.leida) {
+                e.preventDefault();
+                marcarComunicadoComoLeido(com.id, com.url);
+            }
+        });
+
+        dropdownItems.appendChild(item);
+    });
+}
+
+function marcarComunicadoComoLeido(id, redirectUrl) {
+    fetch(`/comunicados/marcar-leida/${id}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (redirectUrl && redirectUrl !== '#') {
+                window.location.href = redirectUrl;
+                return;
+            }
+            cargarComunicados();
+        }
+    })
+    .catch(error => console.error('Error al marcar comunicado como leído:', error));
+}
+
+function marcarTodosComunicadosLeidos() {
+    fetch('/comunicados/marcar-todos-leidos/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            cargarComunicados();
+            mostrarNotificacion('Todos los comunicados marcados como leídos', 'success', 2000);
+        }
+    })
+    .catch(error => console.error('Error al marcar todos los comunicados como leídos:', error));
 }
 
 function getCookie(name) {

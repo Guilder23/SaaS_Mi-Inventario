@@ -25,7 +25,7 @@ def obtener_notificaciones(request):
     """Obtener notificaciones en JSON para cargar dinámicamente"""
     try:
         notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha_creacion')[:10]
-        
+
         data = []
         for notif in notificaciones:
             minutos_atras = (timezone.now() - notif.fecha_creacion).total_seconds() / 60
@@ -59,7 +59,7 @@ def obtener_notificaciones(request):
             }
             
             icono = iconos.get(notif.tipo, 'fa-bell')
-            
+
             data.append({
                 'id': notif.id,
                 'titulo': notif.titulo,
@@ -70,7 +70,7 @@ def obtener_notificaciones(request):
                 'leida': notif.leida,
                 'url': notif.url or '#',
             })
-        
+
         no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
         
         return JsonResponse({

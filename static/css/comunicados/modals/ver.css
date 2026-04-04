@@ -1,0 +1,37 @@
+#modalVerComunicado .modal-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 3px solid #065f46;
+}
+
+#modalVerComunicado .modal-body {
+    padding: 1.25rem 1.5rem;
+}
+
+#modalVerComunicado .com-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #ffffff;
+}
+
+#modalVerComunicado .com-row {
+    margin-bottom: 0.75rem;
+}
+
+#modalVerComunicado .com-row:last-child {
+    margin-bottom: 0;
+}
+
+#modalVerComunicado .com-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+#modalVerComunicado .com-value {
+    color: #111827;
+    white-space: pre-wrap;
+}

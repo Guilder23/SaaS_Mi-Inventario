@@ -1,0 +1,96 @@
+/* ============================================================================
+   HISTORIAL DE COMUNICADOS
+   ============================================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: #1e3a8a;
+    border-radius: 0.5rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-header-content h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    margin: 0.25rem 0 0;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.875rem;
+}
+
+.card-tabla {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.tabla-historial thead {
+    background: #3b82f6;
+    color: white;
+}
+
+.tabla-historial thead th {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tabla-historial tbody td {
+    padding: 0.7rem 0.75rem;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.titulo {
+    font-weight: 700;
+    color: #111827;
+}
+
+.mensaje {
+    color: #4b5563;
+    font-size: 0.85rem;
+    max-width: 720px;
+}
+
+.fila-nueva {
+    background: #eff6ff;
+}
+
+.estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.estado-nuevo {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+}
+
+.estado-leido {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #6ee7b7;
+}

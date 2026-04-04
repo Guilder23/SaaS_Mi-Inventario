@@ -40,6 +40,30 @@
                     </span>
                 {% endif %}
             </div>
+
+            <!-- Comunicados (Broadcast) -->
+            <div class="navbar-comunicados">
+                <button class="navbar-icon-btn" id="comunicadosBtn" title="Comunicados">
+                    <i class="fas fa-bullhorn"></i>
+                    <span class="badge" id="comunicadosBadge">0</span>
+                </button>
+                <div class="navbar-dropdown notificaciones-dropdown" id="comunicadosDropdown">
+                    <div class="dropdown-header">
+                        <span>Comunicados</span>
+                        <small class="text-muted" id="comunicadosContador">0 nuevos</small>
+                    </div>
+                    <div class="dropdown-items" id="comunicadosLista">
+                        <div class="text-center py-3 text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando...
+                        </div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="{% url 'comunicados_historial' %}">Ver historial</a>
+                        <button id="marcarTodosComunicadosBtn" type="button" class="btn-marcar-todas">Marcar todos como leídos</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Notificaciones -->
             <div class="navbar-notificaciones">
                 <button class="navbar-icon-btn" id="notificacionesBtn" title="Notificaciones">

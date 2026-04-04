@@ -1,0 +1,68 @@
+/* ============================================================================
+   DETALLE DE COMUNICADO
+   ============================================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: #1e3a8a;
+    border-radius: 0.5rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-header-content h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    margin: 0.25rem 0 0;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.9rem;
+}
+
+.card-detalle {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+}
+
+.card-detalle .card-body {
+    padding: 1.25rem 1.5rem;
+}
+
+.detalle-meta {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: #6b7280;
+    font-size: 0.85rem;
+}
+
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.detalle-titulo {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 0.75rem 0;
+}
+
+.detalle-mensaje {
+    white-space: pre-wrap;
+    color: #111827;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}

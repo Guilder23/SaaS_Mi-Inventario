@@ -1,0 +1,12 @@
+#modalTogglePublicado .modal-header,
+#modalToggleActivo .modal-header {
+    background: #1e3a8a;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: 3px solid #065f46;
+}
+
+#modalTogglePublicado .modal-body,
+#modalToggleActivo .modal-body {
+    padding: 1.25rem 1.5rem;
+}

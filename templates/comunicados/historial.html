@@ -1,0 +1,74 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Historial de Comunicados{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/comunicados/historial.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-bullhorn"></i> Historial de Comunicados</h1>
+            <p class="page-subtitle">Avisos globales publicados por el sistema</p>
+        </div>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-historial mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 55%;">Comunicado</th>
+                        <th style="width: 20%;">Publicación</th>
+                        <th style="width: 15%;">Estado</th>
+                        <th class="text-center" style="width: 10%;">Abrir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        {% with c=item.obj %}
+                        <tr class="{% if not item.leido %}fila-nueva{% endif %}">
+                            <td>
+                                <div class="titulo">{{ c.titulo }}</div>
+                                <div class="mensaje text-truncate" title="{{ c.mensaje }}">{{ c.mensaje }}</div>
+                            </td>
+                            <td>
+                                <small>
+                                    {% if c.fecha_publicacion %}
+                                        {{ c.fecha_publicacion|date:"d/m/y H:i" }}
+                                    {% else %}
+                                        {{ c.fecha_creacion|date:"d/m/y H:i" }}
+                                    {% endif %}
+                                </small>
+                            </td>
+                            <td>
+                                {% if item.leido %}
+                                    <span class="estado-badge estado-leido"><i class="fas fa-check"></i> Leído</span>
+                                {% else %}
+                                    <span class="estado-badge estado-nuevo"><i class="fas fa-circle"></i> Nuevo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a class="btn btn-info btn-sm" href="{% url 'comunicado_detalle' c.id %}" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                                <p class="text-muted">No hay comunicados publicados</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

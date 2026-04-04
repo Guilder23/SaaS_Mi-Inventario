@@ -1,0 +1,141 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Comunicados{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/comunicados/comunicados.css' %}">
+    <link rel="stylesheet" href="{% static 'css/comunicados/modals/crear.css' %}">
+    <link rel="stylesheet" href="{% static 'css/comunicados/modals/editar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/comunicados/modals/ver.css' %}">
+    <link rel="stylesheet" href="{% static 'css/comunicados/modals/toggle.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-bullhorn"></i> Comunicados (Broadcast)
+            </h1>
+            <p class="page-subtitle">Publica avisos globales para todos los usuarios</p>
+        </div>
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalCrearComunicado">
+            <i class="fas fa-plus"></i> Nuevo Comunicado
+        </button>
+    </div>
+
+    <div class="card card-tabla">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-comunicados mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Título</th>
+                        <th style="width: 35%;">Mensaje</th>
+                        <th style="width: 12%;">Estado</th>
+                        <th style="width: 15%;">Publicación</th>
+                        <th class="text-center" style="width: 8%;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in comunicados %}
+                    <tr class="{% if not c.activo %}fila-inactiva{% endif %}">
+                        <td>
+                            <div class="text-truncate" style="max-width: 380px;" title="{{ c.titulo }}">{{ c.titulo }}</div>
+                        </td>
+                        <td>
+                            <div class="text-truncate" style="max-width: 520px;" title="{{ c.mensaje }}">{{ c.mensaje }}</div>
+                        </td>
+                        <td>
+                            {% if c.publicado %}
+                                <span class="estado-badge estado-publicado"><i class="fas fa-check-circle"></i> Publicado</span>
+                            {% else %}
+                                <span class="estado-badge estado-borrador"><i class="fas fa-pencil-alt"></i> Borrador</span>
+                            {% endif %}
+                            {% if not c.activo %}
+                                <span class="estado-badge estado-inactivo"><i class="fas fa-ban"></i> Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if c.fecha_publicacion %}
+                                <small>{{ c.fecha_publicacion|date:"d/m/y H:i" }}</small>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
+                        </td>
+                        <td class="text-center acciones-col">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-ver"
+                                data-toggle="modal"
+                                data-target="#modalVerComunicado"
+                                data-id="{{ c.id }}"
+                                data-titulo="{{ c.titulo|escapejs }}"
+                                data-mensaje="{{ c.mensaje|escapejs }}"
+                                data-publicado="{% if c.publicado %}1{% else %}0{% endif %}"
+                                data-activo="{% if c.activo %}1{% else %}0{% endif %}"
+                                data-fecha="{% if c.fecha_publicacion %}{{ c.fecha_publicacion|date:'d/m/y H:i' }}{% endif %}"
+                                title="Ver"
+                            ><i class="fas fa-eye"></i></button>
+
+                            <button
+                                type="button"
+                                class="btn btn-warning btn-sm btn-editar"
+                                data-toggle="modal"
+                                data-target="#modalEditarComunicado"
+                                data-id="{{ c.id }}"
+                                data-titulo="{{ c.titulo|escapejs }}"
+                                data-mensaje="{{ c.mensaje|escapejs }}"
+                                title="Editar"
+                            ><i class="fas fa-edit"></i></button>
+
+                            <button
+                                type="button"
+                                class="btn btn-success btn-sm btn-toggle-publicado"
+                                data-toggle="modal"
+                                data-target="#modalTogglePublicado"
+                                data-id="{{ c.id }}"
+                                data-titulo="{{ c.titulo|escapejs }}"
+                                data-publicado="{% if c.publicado %}1{% else %}0{% endif %}"
+                                title="Publicar/Despublicar"
+                            ><i class="fas fa-broadcast-tower"></i></button>
+
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-sm btn-toggle-activo"
+                                data-toggle="modal"
+                                data-target="#modalToggleActivo"
+                                data-id="{{ c.id }}"
+                                data-titulo="{{ c.titulo|escapejs }}"
+                                data-activo="{% if c.activo %}1{% else %}0{% endif %}"
+                                title="Activar/Desactivar"
+                            ><i class="fas fa-power-off"></i></button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay comunicados todavía</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include 'comunicados/modals/crear.html' %}
+    {% include 'comunicados/modals/editar.html' %}
+    {% include 'comunicados/modals/ver.html' %}
+    {% include 'comunicados/modals/toggle_publicado.html' %}
+    {% include 'comunicados/modals/toggle_activo.html' %}
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/comunicados/comunicados.js' %}"></script>
+    <script src="{% static 'js/comunicados/modals/editar.js' %}"></script>
+    <script src="{% static 'js/comunicados/modals/ver.js' %}"></script>
+    <script src="{% static 'js/comunicados/modals/toggle.js' %}"></script>
+{% endblock %}

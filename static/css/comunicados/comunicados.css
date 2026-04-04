@@ -1,0 +1,111 @@
+/* ============================================================================
+   ESTILOS PARA COMUNICADOS (BROADCAST)
+   ============================================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: #1e3a8a;
+    border-radius: 0.5rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-header-content h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    margin: 0.25rem 0 0;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.875rem;
+}
+
+.card-tabla {
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.tabla-comunicados thead {
+    background: #3b82f6;
+    color: white;
+}
+
+.tabla-comunicados thead th {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tabla-comunicados tbody td {
+    padding: 0.6rem 0.75rem;
+    vertical-align: middle;
+    font-size: 0.85rem;
+}
+
+.estado-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 1px solid;
+    margin-right: 0.25rem;
+    max-width: 100%;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.estado-badge i {
+    font-size: 0.7rem;
+}
+
+.estado-publicado {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #6ee7b7;
+}
+
+.estado-borrador {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+}
+
+.estado-inactivo {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+
+.fila-inactiva {
+    opacity: 0.65;
+    background-color: #f9fafb;
+}
+
+.acciones-col {
+    white-space: nowrap;
+}
+
+.acciones-col .btn {
+    margin-right: 0.2rem;
+}
+
+.acciones-col .btn:last-child {
+    margin-right: 0;
+}

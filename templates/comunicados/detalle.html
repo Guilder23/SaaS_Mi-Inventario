@@ -1,0 +1,40 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Comunicado{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/comunicados/detalle.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title"><i class="fas fa-bullhorn"></i> Comunicado</h1>
+            <p class="page-subtitle">{{ comunicado.titulo }}</p>
+        </div>
+        <a class="btn btn-secondary btn-lg" href="{% url 'comunicados_historial' %}">
+            <i class="fas fa-arrow-left"></i> Historial
+        </a>
+    </div>
+
+    <div class="card card-detalle">
+        <div class="card-body">
+            <div class="detalle-meta">
+                <span class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    {% if comunicado.fecha_publicacion %}
+                        {{ comunicado.fecha_publicacion|date:"d/m/y H:i" }}
+                    {% else %}
+                        {{ comunicado.fecha_creacion|date:"d/m/y H:i" }}
+                    {% endif %}
+                </span>
+            </div>
+
+            <h3 class="detalle-titulo">{{ comunicado.titulo }}</h3>
+            <div class="detalle-mensaje">{{ comunicado.mensaje }}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

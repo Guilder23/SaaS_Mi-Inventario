@@ -1,0 +1,28 @@
+<!-- MODAL: PUBLICAR / DESPUBLICAR -->
+<div class="modal fade" id="modalTogglePublicado" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-broadcast-tower"></i> Publicación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" action="{% url 'comunicados_list' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="toggle_publicado">
+                <input type="hidden" name="comunicado_id" id="togglePublicadoId">
+                <div class="modal-body">
+                    <p class="mb-2" id="togglePublicadoTexto">-</p>
+                    <div class="alert alert-info py-2 mb-0">
+                        <strong>Comunicado:</strong> <span id="togglePublicadoTitulo">-</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times"></i> Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="togglePublicadoBtn"><i class="fas fa-check"></i> Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

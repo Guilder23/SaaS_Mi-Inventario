@@ -44,6 +44,12 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{% url 'planes_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'planes_list' %}active{% endif %}" title="Planes">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Planes</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{% url 'listar_notificaciones' %}" class="sidebar-link {% if 'notificaciones' in request.path %}active{% endif %}" title="Notificaciones">
                     <i class="fas fa-bell"></i>
                     <span>Notificaciones</span>

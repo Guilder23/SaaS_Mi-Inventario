@@ -11,6 +11,8 @@ from django.utils import timezone
 from .models import Empresa, PagoEmpresa, PagoQRConfig
 from apps.usuarios.models import PerfilUsuario
 from apps.notificaciones.utils import crear_notificacion
+from apps.planes.quota import can_activate_user_for_role
+from apps.planes.models import Plan
 
 
 @login_required
@@ -251,8 +253,11 @@ def empresas_list(request):
         pagos_pendientes=Count("pagos", filter=Q(pagos__estado="pendiente"), distinct=True),
     ).order_by("nombre")
 
+    planes = Plan.objects.order_by("codigo")
+
     context = {
         "empresas": empresas,
+        "planes": planes,
     }
     return render(request, "empresas/empresas/empresas.html", context)
 
@@ -284,6 +289,23 @@ def clientes_list(request):
 
             empresa = get_object_or_404(Empresa, id=empresa_id)
 
+            ok, limite_total, usados_total, limite_rol, usados_rol = can_activate_user_for_role(
+                empresa=empresa,
+                rol="administrador",
+            )
+            if not ok:
+                if limite_rol is not None:
+                    messages.error(
+                        request,
+                        f"No se puede crear el admin: límite de administradores alcanzado (límite: {limite_rol})."
+                    )
+                else:
+                    messages.error(
+                        request,
+                        f"No se puede crear el admin: límite total de usuarios alcanzado (límite: {limite_total})."
+                    )
+                return redirect("empresas_clientes")
+
             usuario = User.objects.create_user(
                 username=username,
                 email=email,
@@ -313,10 +335,22 @@ def clientes_list(request):
             usuario = perfil.usuario
 
             if usuario:
+                estaba_activo = usuario.is_active
                 usuario.first_name = request.POST.get("first_name", usuario.first_name)
                 usuario.last_name = request.POST.get("last_name", usuario.last_name)
                 usuario.email = request.POST.get("email", usuario.email)
                 usuario.is_active = request.POST.get("activo") == "on"
+
+                if usuario.is_active and not estaba_activo:
+                    empresa = perfil.empresa
+                    ok, limite_total, usados_total, limite_rol, usados_rol = can_activate_user_for_role(
+                        empresa=empresa,
+                        rol="administrador",
+                    )
+                    if not ok:
+                        usuario.is_active = False
+                        messages.error(request, "No se puede activar: el plan alcanzó el límite de usuarios.")
+                        return redirect("empresas_clientes")
                 nueva_password = request.POST.get("password", "").strip()
                 if nueva_password:
                     usuario.set_password(nueva_password)

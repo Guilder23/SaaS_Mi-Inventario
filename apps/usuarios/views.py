@@ -9,6 +9,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from decimal import Decimal
 from .models import PerfilUsuario
+from apps.planes.quota import can_activate_user_for_role
 
 
 def _es_usuario_tecnico_deposito(usuario):
@@ -252,6 +253,25 @@ def crear_usuario(request):
                 messages.error(request, 'No tienes una empresa asignada')
                 return redirect('listar_usuarios')
 
+            # Validar cuota del plan (solo si el nuevo usuario se crea activo)
+            if is_active:
+                ok, limite_total, usados_total, limite_rol, usados_rol = can_activate_user_for_role(
+                    empresa=empresa,
+                    rol=rol,
+                )
+                if not ok:
+                    if limite_rol is not None:
+                        messages.error(
+                            request,
+                            f"Límite de usuarios para el rol '{rol}' alcanzado (límite: {limite_rol}, usados: {usados_rol})."
+                        )
+                    else:
+                        messages.error(
+                            request,
+                            f"Límite total de usuarios alcanzado (límite: {limite_total}, usados: {usados_total})."
+                        )
+                    return redirect('listar_usuarios')
+
             # Crear usuario
             usuario = User.objects.create_user(
                 username=username,
@@ -408,6 +428,53 @@ def editar_usuario(request, id):
                 usuario.is_staff = (nuevo_rol == 'administrador')
                 if not usuario.is_superuser:
                     usuario.is_superuser = False
+
+                # Validar cuota del plan si el usuario quedará activo
+                empresa = getattr(request, 'empresa', None)
+                if not empresa and hasattr(usuario, 'perfil'):
+                    empresa = usuario.perfil.empresa
+                if usuario.is_active and empresa:
+                    # Si cambia de rol o se reactiva, validar contra el plan
+                    ok, limite_total, usados_total, limite_rol, usados_rol = can_activate_user_for_role(
+                        empresa=empresa,
+                        rol=nuevo_rol,
+                    )
+
+                    # Evitar falso positivo: al editar, el conteo puede incluir al mismo usuario.
+                    if not ok:
+                        usados_total_excl = PerfilUsuario.all_objects.filter(
+                            empresa=empresa,
+                            activo=True,
+                            usuario__isnull=False,
+                            usuario__is_active=True,
+                        ).exclude(usuario_id=usuario.id).count()
+
+                        usados_rol_excl = PerfilUsuario.all_objects.filter(
+                            empresa=empresa,
+                            rol=nuevo_rol,
+                            activo=True,
+                            usuario__isnull=False,
+                            usuario__is_active=True,
+                        ).exclude(usuario_id=usuario.id).count()
+
+                        excede_total = (limite_total is not None) and (usados_total_excl >= limite_total)
+                        excede_rol = (limite_rol is not None) and (usados_rol_excl >= limite_rol)
+
+                        if excede_rol:
+                            messages.error(
+                                request,
+                                f"No se puede asignar el rol '{nuevo_rol}': límite del plan alcanzado (límite: {limite_rol})."
+                            )
+                            return redirect('listar_usuarios')
+
+                        if excede_total:
+                            messages.error(
+                                request,
+                                f"No se puede activar/actualizar el usuario: límite total de usuarios alcanzado (límite: {limite_total})."
+                            )
+                            return redirect('listar_usuarios')
+
+                        ok = True
                 
                 # Actualizar perfil si existe, sino crear
                 if hasattr(usuario, 'perfil'):
@@ -529,7 +596,28 @@ def bloquear_usuario(request, id):
     
     try:
         # Cambiar estado
-        usuario.is_active = not usuario.is_active
+        nuevo_estado = not usuario.is_active
+
+        # Si se está activando, validar cuota del plan
+        if nuevo_estado:
+            empresa = getattr(request, 'empresa', None)
+            perfil = getattr(usuario, 'perfil', None)
+            if not empresa and perfil:
+                empresa = perfil.empresa
+            if empresa and perfil:
+                ok, limite_total, usados_total, limite_rol, usados_rol = can_activate_user_for_role(
+                    empresa=empresa,
+                    rol=perfil.rol,
+                )
+                # Ajuste: el usuario está inactivo, no cuenta aún; si used >= limit, bloquea.
+                if not ok:
+                    if limite_rol is not None:
+                        messages.error(request, f"No se puede activar: límite del rol '{perfil.rol}' alcanzado (límite: {limite_rol}).")
+                    else:
+                        messages.error(request, f"No se puede activar: límite total de usuarios alcanzado (límite: {limite_total}).")
+                    return redirect('listar_usuarios')
+
+        usuario.is_active = nuevo_estado
         usuario.save()
         
         estado = 'activado' if usuario.is_active else 'bloqueado'

@@ -1,0 +1,54 @@
+<div class="modal fade" id="modalEditarPlan" tabindex="-1" role="dialog" aria-labelledby="modalEditarPlanLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="editar_plan">
+                <input type="hidden" name="plan_id" id="editarPlanId">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarPlanLabel"><i class="fas fa-pen"></i> Editar Plan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>Código</label>
+                            <input type="text" class="form-control" id="editarPlanCodigo" disabled>
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control" name="nombre" id="editarPlanNombre" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Máx. productos</label>
+                            <input type="number" class="form-control" name="max_productos" id="editarPlanMaxProductos" min="0" placeholder="(vacío = ilimitado)">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Máx. usuarios activos (total)</label>
+                            <input type="number" class="form-control" name="max_usuarios_total" id="editarPlanMaxUsuarios" min="0" placeholder="(vacío = ilimitado)">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="editarPlanActivo" name="activo">
+                            <label class="custom-control-label" for="editarPlanActivo">Activo</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

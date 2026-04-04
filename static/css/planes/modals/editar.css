@@ -1,0 +1,15 @@
+/* ============================================================================
+   MODAL EDITAR PLAN
+   ============================================================================ */
+
+#modalEditarPlan .modal-header {
+    background: #1e3a8a;
+    color: #fff;
+}
+
+#modalEditarPlan .modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}

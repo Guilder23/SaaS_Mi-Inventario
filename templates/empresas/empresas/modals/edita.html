@@ -18,9 +18,15 @@
                         <div class="form-group col-md-4">
                             <label for="editPlan" class="form-label">Plan</label>
                             <select class="form-control" id="editPlan" name="plan">
-                                <option value="basico">Basico</option>
-                                <option value="pro">Pro</option>
-                                <option value="enterprise">Enterprise</option>
+                                {% for p in planes %}
+                                    <option value="{{ p.codigo }}" {% if not p.activo %}disabled{% endif %}>
+                                        {{ p.nombre }}{% if not p.activo %} (Inactivo){% endif %}
+                                    </option>
+                                {% empty %}
+                                    <option value="basico">Basico</option>
+                                    <option value="pro">Pro</option>
+                                    <option value="enterprise">Enterprise</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="form-group col-md-4">

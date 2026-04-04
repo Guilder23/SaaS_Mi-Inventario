@@ -14,6 +14,7 @@ from apps.usuarios.models import PerfilUsuario
 from apps.notificaciones.utils import notificar_administrador_producto, notificar_almacen_precio
 from decimal import Decimal
 from apps.servicios.tipos_cambios import obtener_tipo_cambio_usd, calcular_precios_usd, stock_en_cajas, stock_cajas_contenedor
+from apps.planes.quota import can_create_producto
 
 def verificar_permiso_productos(request):
     """Verifica si el usuario tiene permiso para gestionar productos"""
@@ -480,6 +481,20 @@ def crear_producto(request):
             categoria = Categoria.objects.filter(id=categoria_id, activo=True).first()
             if not categoria:
                 messages.error(request, 'La categoría seleccionada no es válida')
+                return redirect('listar_productos')
+
+            empresa = getattr(request, 'empresa', None)
+            if not empresa:
+                messages.error(request, 'No tienes una empresa asignada')
+                return redirect('listar_productos')
+
+            ok, limite, usados = can_create_producto(empresa=empresa)
+            if not ok:
+                messages.error(
+                    request,
+                    f"Límite de productos alcanzado para tu plan (límite: {limite}, usados: {usados}). "
+                    "Actualiza tu plan para crear más productos."
+                )
                 return redirect('listar_productos')
             
             # Verificar código único

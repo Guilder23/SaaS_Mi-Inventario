@@ -1,0 +1,55 @@
+<div class="modal fade" id="modalRolesPlan" tabindex="-1" role="dialog" aria-labelledby="modalRolesPlanLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="guardar_roles">
+                <input type="hidden" name="plan_id" id="rolesPlanId">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRolesPlanLabel"><i class="fas fa-users-cog"></i> Límites por rol</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="text-muted mb-3">Plan: <strong id="rolesPlanCodigo"></strong></p>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-roles mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 45%;">Rol</th>
+                                    <th style="width: 55%;">Máx. usuarios activos (vacío = ilimitado)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rol,label in roles %}
+                                <tr>
+                                    <td>{{ label }}</td>
+                                    <td>
+                                        <input
+                                            type="number"
+                                            class="form-control form-control-sm"
+                                            name="max_usuarios__{{ rol }}"
+                                            id="roleLimit__{{ rol }}"
+                                            min="0"
+                                            placeholder="Ilimitado"
+                                        >
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

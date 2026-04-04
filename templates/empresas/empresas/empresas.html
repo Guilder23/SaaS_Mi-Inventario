@@ -54,9 +54,13 @@
                 <div class="col-md-3">
                     <select class="form-control form-control-sm" id="plan" name="plan">
                         <option value="">Todos los planes</option>
-                        <option value="basico">Basico</option>
-                        <option value="pro">Pro</option>
-                        <option value="enterprise">Enterprise</option>
+                        {% for p in planes %}
+                            <option value="{{ p.codigo }}">{{ p.nombre }}</option>
+                        {% empty %}
+                            <option value="basico">Basico</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Enterprise</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>

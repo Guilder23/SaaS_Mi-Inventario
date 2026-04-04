@@ -29,10 +29,33 @@
     font-size: 0.875rem;
 }
 
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    .page-header-content h1 {
+        font-size: 1.4rem;
+    }
+}
+
 .card-tabla {
     border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    border-radius: 0.5rem;
     overflow: hidden;
+}
+
+.tabla-comunicados {
+    width: 100%;
+    margin-bottom: 0;
 }
 
 .tabla-comunicados thead {
@@ -42,17 +65,34 @@
 
 .tabla-comunicados thead th {
     font-weight: 600;
-    font-size: 0.78rem;
-    color: white;
-    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 0.875rem 0.75rem;
+    vertical-align: middle;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tabla-comunicados thead th.text-center {
+    text-align: center;
 }
 
 .tabla-comunicados tbody td {
-    padding: 0.6rem 0.75rem;
+    padding: 0.75rem;
     vertical-align: middle;
-    font-size: 0.85rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    font-size: 0.875rem;
+}
+
+/* Mensaje más compacto y con "..." */
+.tabla-comunicados .comunicado-mensaje {
+    display: block;
+    max-width: 220px;
+    font-size: 0.8rem;
+    line-height: 1.2;
 }
 
 .estado-badge {
@@ -102,10 +142,28 @@
     white-space: nowrap;
 }
 
-.acciones-col .btn {
-    margin-right: 0.2rem;
+.tabla-comunicados thead th.th-acciones {
+    white-space: nowrap;
 }
 
-.acciones-col .btn:last-child {
-    margin-right: 0;
+.tabla-comunicados td.acciones-col {
+    white-space: nowrap;
+}
+
+.tabla-comunicados td.acciones-col .btn {
+    margin: 0 2px;
+}
+
+.tabla-comunicados td.acciones-col .btn.btn-sm {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tabla-comunicados td.acciones-col .btn i {
+    font-size: 0.85rem;
 }

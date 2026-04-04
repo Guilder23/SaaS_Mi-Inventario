@@ -122,3 +122,26 @@
     color: #991b1b;
     border-color: #fca5a5;
 }
+
+/* Acciones: mantener en una sola fila (también en móvil) */
+.tabla-clientes td.acciones-col {
+    white-space: nowrap;
+}
+
+.tabla-clientes td.acciones-col .btn {
+    margin: 0 2px;
+}
+
+.tabla-clientes td.acciones-col .btn.btn-sm {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tabla-clientes td.acciones-col .btn i {
+    font-size: 0.85rem;
+}

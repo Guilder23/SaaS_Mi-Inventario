@@ -33,6 +33,23 @@
     font-size: 0.875rem;
 }
 
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 1.25rem;
+    }
+
+    .page-header .btn {
+        width: 100%;
+    }
+
+    .page-header-content h1 {
+        font-size: 1.4rem;
+    }
+}
+
 .card-tabla {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
@@ -139,6 +156,26 @@
 /* Botones de acciones */
 .tabla-planes td .btn {
     margin: 0 2px;
+}
+
+/* Mantener acciones en una sola línea */
+.tabla-planes td.acciones-col {
+    white-space: nowrap;
+}
+
+.tabla-planes td.acciones-col .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0.2rem;
+}
+
+/* Botones cuadrados como en otras gestiones */
+.tabla-planes td.acciones-col .btn.btn-sm {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 6px;
 }
 
 .tabla-planes td .btn i {

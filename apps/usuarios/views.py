@@ -20,7 +20,7 @@ def index(request):
     """Página de inicio - redirige al dashboard si está autenticado"""
     if request.user.is_authenticated:
         if request.user.is_superuser:
-            return redirect('empresas_list')
+            return redirect('dashboard_superadmin')
         return redirect('dashboard')
     return render(request, 'inicio/index.html')
 
@@ -42,7 +42,7 @@ def dashboard(request):
     
     # Super admin solo usa el panel SaaS
     if request.user.is_superuser:
-        return redirect('empresas_list')
+        return redirect('dashboard_superadmin')
 
     # Determinar qué dashboard mostrar según el rol del usuario
     if request.user.is_superuser:

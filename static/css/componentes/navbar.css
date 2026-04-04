@@ -578,13 +578,14 @@
    ESTILOS PARA NOTIFICACIONES EN NAVBAR
    ============================================================================ */
 
-/* Notificaciones Badge */
+/* Badges (Notificaciones y Comunicados) */
 .navbar-notificaciones {
     position: relative;
     margin-right: 1.5rem;
 }
 
-.navbar-notificaciones .badge {
+.navbar-notificaciones .badge,
+.navbar-comunicados .badge {
     position: absolute;
     top: -8px;
     right: -8px;
@@ -601,7 +602,8 @@
     border: 2px solid white;
 }
 
-.navbar-notificaciones .badge:not(:empty) {
+.navbar-notificaciones .badge:not(:empty),
+.navbar-comunicados .badge:not(:empty) {
     display: flex;
 }
 

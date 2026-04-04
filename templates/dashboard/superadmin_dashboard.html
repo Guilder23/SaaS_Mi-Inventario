@@ -1,0 +1,243 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Dashboard Superadmin - SaaS{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/dashboard/dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/dashboard/superadmin_dashboard.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<!-- Page Header -->
+<div class="page-header mb-4">
+    <div class="page-header-content">
+        <h1 class="page-title">
+            <i class="fas fa-gauge-high"></i> Dashboard Superadmin
+        </h1>
+        <p class="page-subtitle">Visión global del SaaS: empresas, uso, planes e ingresos</p>
+    </div>
+    <div class="page-header-actions">
+        <span class="badge-time">
+            <i class="fas fa-clock"></i>
+            <span id="currentDateTime"></span>
+        </span>
+    </div>
+</div>
+
+<!-- KPIs principales -->
+<div class="stats-grid mb-4">
+    <div class="stat-card stat-card-primary">
+        <div class="stat-card-icon"><i class="fas fa-building"></i></div>
+        <div class="stat-card-content">
+            <div class="stat-card-label">Total de empresas</div>
+            <div class="stat-card-value">{{ total_empresas|default:0 }}</div>
+            <div class="stat-card-info-text">Clientes registrados en el SaaS</div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-success">
+        <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-card-content">
+            <div class="stat-card-label">Total de usuarios</div>
+            <div class="stat-card-value">{{ total_usuarios|default:0 }}</div>
+            <div class="stat-card-info-text">Usuarios activos (excluye técnicos)</div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-info">
+        <div class="stat-card-icon"><i class="fas fa-box"></i></div>
+        <div class="stat-card-content">
+            <div class="stat-card-label">Total de productos</div>
+            <div class="stat-card-value">{{ total_productos|default:0 }}</div>
+            <div class="stat-card-info-text">Productos activos en todas las empresas</div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-warning">
+        <div class="stat-card-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-card-content">
+            <div class="stat-card-label">Ingresos mensuales (MRR)</div>
+            <div class="stat-card-value">Bs. {{ ingresos_mes_bob|floatformat:2 }}</div>
+            <div class="stat-card-info-text">
+                {% if ingresos_mes_usd and ingresos_mes_usd != 0 %}
+                    + ${{ ingresos_mes_usd|floatformat:2 }} USD
+                {% else %}
+                    Pagos aprobados del mes
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="stat-card stat-card-primary">
+        <div class="stat-card-icon"><i class="fas fa-user-plus"></i></div>
+        <div class="stat-card-content">
+            <div class="stat-card-label">Nuevas empresas este mes</div>
+            <div class="stat-card-value">{{ nuevas_empresas_mes|default:0 }}</div>
+            <div class="stat-card-info-text">Altas en el mes actual</div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficas principales -->
+<div class="saas-grid-2 mb-4">
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-chart-line"></i> Crecimiento de empresas</h3>
+            <small class="text-muted">Empresas registradas por mes</small>
+        </div>
+        <div class="dashboard-card-body">
+            <canvas id="chartEmpresas"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-chart-column"></i> Ingresos por mes</h3>
+            <small class="text-muted">Pagos aprobados (BOB)</small>
+        </div>
+        <div class="dashboard-card-body">
+            <canvas id="chartIngresos"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="saas-grid-3 mb-4">
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-chart-pie"></i> Distribución de planes</h3>
+            <small class="text-muted">Básico / Pro / Enterprise</small>
+        </div>
+        <div class="dashboard-card-body">
+            <canvas id="chartPlanes"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-ranking-star"></i> Usuarios por empresa (Top 5)</h3>
+            <small class="text-muted">Ranking de uso</small>
+        </div>
+        <div class="dashboard-card-body">
+            <canvas id="chartTopUsuarios"></canvas>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-boxes-stacked"></i> Productos por empresa</h3>
+            <small class="text-muted">Top por cantidad de productos</small>
+        </div>
+        <div class="dashboard-card-body">
+            <canvas id="chartTopProductos"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Alertas + Actividad -->
+<div class="saas-grid-2 mb-4">
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-triangle-exclamation"></i> Alertas importantes</h3>
+            <small class="text-muted">Atención rápida para soporte / cobros</small>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="saas-alerts">
+                <div class="saas-alert-block">
+                    <div class="saas-alert-title text-warning"><i class="fas fa-gauge"></i> Empresas cerca del límite</div>
+                    <div class="saas-scroll saas-alert-scroll scroll-fade" data-scroll-fade>
+                        {% if alertas_cerca_limite %}
+                            <ul class="saas-alert-list">
+                                {% for a in alertas_cerca_limite %}
+                                    <li>
+                                        <span class="saas-alert-empresa">{{ a.empresa.nombre }}</span>
+                                        <span class="saas-alert-meta">{{ a.tipo }}: {{ a.usados }}/{{ a.limite }} ({{ a.porcentaje }}%)</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="text-muted">Sin alertas por límite.</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="saas-alert-block">
+                    <div class="saas-alert-title text-danger"><i class="fas fa-ban"></i> Empresas suspendidas</div>
+                    <div class="saas-scroll saas-alert-scroll scroll-fade" data-scroll-fade>
+                        {% if empresas_suspendidas or empresas_vencidas %}
+                            <ul class="saas-alert-list">
+                                {% for e in empresas_suspendidas %}
+                                    <li><span class="saas-alert-empresa">{{ e.nombre }}</span> <span class="saas-alert-meta">Suspendida</span></li>
+                                {% endfor %}
+                                {% for e in empresas_vencidas %}
+                                    <li><span class="saas-alert-empresa">{{ e.nombre }}</span> <span class="saas-alert-meta">Vencida ({{ e.fecha_vencimiento }})</span></li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="text-muted">No hay empresas suspendidas/vencidas.</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="saas-alert-block">
+                    <div class="saas-alert-title text-danger"><i class="fas fa-credit-card"></i> Empresas sin pago</div>
+                    <div class="saas-scroll saas-alert-scroll scroll-fade" data-scroll-fade>
+                        {% if empresas_sin_pago %}
+                            <ul class="saas-alert-list" id="empresasSinPagoList" data-pendientes='{{ empresas_con_pago_pendiente_ids_json|escape }}'>
+                                {% for e in empresas_sin_pago %}
+                                    <li>
+                                        <span class="saas-alert-empresa">{{ e.nombre }}</span>
+                                        <span class="saas-alert-meta" data-empresa-id="{{ e.id }}">Sin pago aprobado</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <div class="text-muted">Todo ok por el momento.</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="saas-alert-block">
+                    <div class="saas-alert-title text-muted"><i class="fas fa-shield-halved"></i> Intentos sospechosos</div>
+                    <div class="saas-scroll saas-alert-scroll scroll-fade" data-scroll-fade>
+                        <div class="text-muted">(Pendiente de implementación)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3><i class="fas fa-list"></i> Actividad reciente</h3>
+            <small class="text-muted">Eventos recientes del sistema</small>
+        </div>
+        <div class="dashboard-card-body">
+            <div class="saas-scroll saas-feed-scroll scroll-fade" data-scroll-fade>
+                <div class="saas-feed">
+                    {% for ev in eventos %}
+                        <div class="saas-feed-item">
+                            <div class="saas-feed-icon">
+                                <i class="fas {{ ev.icono }}"></i>
+                            </div>
+                            <div class="saas-feed-content">
+                                <div class="saas-feed-text">{{ ev.texto }}</div>
+                                <small class="text-muted">{{ ev.ts|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="text-muted">No hay actividad reciente.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ charts_data|json_script:"saasDashboardData" }}
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard/dashboard.js' %}"></script>
+<script src="{% static 'js/dashboard/superadmin_dashboard.js' %}"></script>
+{% endblock %}

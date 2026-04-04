@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from apps.dashboard import views as dashboard_views
 
 urlpatterns = [
     # Página de inicio / Índice (login para no autenticados)
@@ -12,6 +13,7 @@ urlpatterns = [
     
     # Dashboard (solo autenticados)
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/superadmin/', dashboard_views.superadmin_dashboard, name='dashboard_superadmin'),
     
     # Gestión de usuarios (solo administrador)
     path('usuarios/', views.listar_usuarios, name='listar_usuarios'),

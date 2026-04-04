@@ -20,6 +20,12 @@
                 <span class="sidebar-section-title">SAAS</span>
             </li>
             <li class="sidebar-item">
+                <a href="{% url 'dashboard_superadmin' %}" class="sidebar-link {% if request.resolver_match.url_name == 'dashboard_superadmin' %}active{% endif %}" title="Dashboard SaaS">
+                    <i class="fas fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{% url 'empresas_list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'empresas_list' %}active{% endif %}" title="Empresas">
                     <i class="fas fa-building"></i>
                     <span>Empresas</span>

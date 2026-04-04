@@ -76,25 +76,6 @@
     white-space: nowrap;
 }
 
-.navbar-empresa {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.65rem;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.12);
-    white-space: nowrap;
-}
-
-.navbar-empresa i {
-    font-size: 0.8rem;
-    opacity: 0.9;
-}
-
 /* ===== SECCIÓN DERECHA ===== */
 .navbar-right {
     display: flex;

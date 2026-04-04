@@ -3,7 +3,7 @@ from .models import Notificacion
 from django.contrib.auth.models import User
 from apps.usuarios.models import PerfilUsuario
 
-def crear_notificacion(usuario, tipo, titulo, mensaje, url=None):
+def crear_notificacion(usuario, tipo, titulo, mensaje, url=None, empresa=None):
     """
     Crear una notificación para un usuario específico
     
@@ -20,7 +20,8 @@ def crear_notificacion(usuario, tipo, titulo, mensaje, url=None):
             tipo=tipo,
             titulo=titulo,
             mensaje=mensaje,
-            url=url
+            url=url,
+            empresa=empresa,
         )
         return True
     except Exception as e:

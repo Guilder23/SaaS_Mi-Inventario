@@ -15,6 +15,9 @@ class Notificacion(EmpresaOwnedModel):
         ('producto_editado', 'Producto Editado'),
         ('producto_eliminado', 'Producto Eliminado'),
         ('precio_modificado', 'Precio Modificado'),
+        ('pago_pendiente', 'Pago Pendiente'),
+        ('pago_aprobado', 'Pago Aprobado'),
+        ('pago_rechazado', 'Pago Rechazado'),
         ('general', 'General'),
     )
     

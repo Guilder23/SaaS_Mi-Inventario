@@ -5,10 +5,12 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from .models import Empresa, PagoEmpresa, PagoQRConfig
 from apps.usuarios.models import PerfilUsuario
+from apps.notificaciones.utils import crear_notificacion
 
 
 @login_required
@@ -31,7 +33,7 @@ def pagos_empresa(request):
             messages.error(request, "Monto y comprobante son obligatorios.")
             return redirect("pagos_empresa")
 
-        PagoEmpresa.objects.create(
+        pago_creado = PagoEmpresa.objects.create(
             empresa=empresa,
             monto=monto,
             moneda=moneda,
@@ -39,6 +41,29 @@ def pagos_empresa(request):
             comentario=comentario,
             enviado_por=request.user,
         )
+
+        # Notificar a superusuarios: nuevo comprobante enviado por un administrador
+        try:
+            url_admin = reverse("pagos_admin")
+        except Exception:
+            url_admin = None
+
+        superusuarios = User.objects.filter(is_superuser=True).distinct()
+        titulo = "Nuevo comprobante de pago"
+        mensaje = (
+            f"{empresa.nombre}: {pago_creado.monto} {pago_creado.moneda} "
+            f"(enviado por {request.user.username})."
+        )
+        for su in superusuarios:
+            crear_notificacion(
+                su,
+                "pago_pendiente",
+                titulo,
+                mensaje,
+                url=url_admin,
+                empresa=empresa,
+            )
+
         messages.success(request, "Comprobante enviado. Espera la aprobacion del super admin.")
         return redirect("pagos_empresa")
 
@@ -86,17 +111,54 @@ def pagos_admin(request):
         pago_id = request.POST.get("pago_id")
         pago = get_object_or_404(PagoEmpresa, id=pago_id)
 
+        try:
+            url_cliente = reverse("pagos_empresa")
+        except Exception:
+            url_cliente = None
+
+        def _destinatarios_admin_empresa(pago_obj):
+            # Preferir al usuario que envió el comprobante
+            if pago_obj.enviado_por:
+                return [pago_obj.enviado_por]
+            # Fallback: todos los administradores activos de la empresa
+            admin_ids = (
+                PerfilUsuario.objects.filter(empresa=pago_obj.empresa, rol="administrador", activo=True)
+                .exclude(usuario__isnull=True)
+                .values_list("usuario_id", flat=True)
+            )
+            return list(User.objects.filter(id__in=admin_ids))
+
         if action == "aprobar_pago":
             pago.estado = "aprobado"
             pago.revisado_por = request.user
             pago.fecha_revision = timezone.now()
             pago.save()
+
+            for dest in _destinatarios_admin_empresa(pago):
+                crear_notificacion(
+                    dest,
+                    "pago_aprobado",
+                    "Pago aprobado",
+                    f"Tu pago de {pago.monto} {pago.moneda} para {pago.empresa.nombre} fue aprobado.",
+                    url=url_cliente,
+                    empresa=pago.empresa,
+                )
             messages.success(request, "Pago aprobado correctamente.")
         elif action == "rechazar_pago":
             pago.estado = "rechazado"
             pago.revisado_por = request.user
             pago.fecha_revision = timezone.now()
             pago.save()
+
+            for dest in _destinatarios_admin_empresa(pago):
+                crear_notificacion(
+                    dest,
+                    "pago_rechazado",
+                    "Pago rechazado",
+                    f"Tu pago de {pago.monto} {pago.moneda} para {pago.empresa.nombre} fue rechazado.",
+                    url=url_cliente,
+                    empresa=pago.empresa,
+                )
             messages.warning(request, "Pago rechazado.")
 
         return redirect("pagos_admin")

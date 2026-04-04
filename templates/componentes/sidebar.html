@@ -43,6 +43,12 @@
                     <span>QR</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{% url 'listar_notificaciones' %}" class="sidebar-link {% if 'notificaciones' in request.path %}active{% endif %}" title="Notificaciones">
+                    <i class="fas fa-bell"></i>
+                    <span>Notificaciones</span>
+                </a>
+            </li>
             {% else %}
             <!-- Dashboard - Todos los usuarios -->
             <li class="sidebar-item">

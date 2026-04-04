@@ -52,6 +52,9 @@ def obtener_notificaciones(request):
                 'stock_critico': 'fa-exclamation-triangle bg-danger',
                 'stock_bajo': 'fa-exclamation-circle bg-warning',
                 'venta': 'fa-check-circle bg-success',
+                'pago_pendiente': 'fa-receipt bg-warning',
+                'pago_aprobado': 'fa-receipt bg-success',
+                'pago_rechazado': 'fa-receipt bg-danger',
                 'general': 'fa-bell bg-muted',
             }
             

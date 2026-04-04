@@ -20,6 +20,19 @@
                             <i class="fas fa-users"></i> Gestión de Usuarios
                         </h1>
                         <p class="page-subtitle">Administra los usuarios del sistema</p>
+                        {% if plan_obj and usuarios_total_usados is not None %}
+                            <p class="page-subtitle page-quota mb-0">
+                                <strong>Plan:</strong> {{ plan_obj.nombre }}
+                                &nbsp;|&nbsp;
+                                <strong>Usuarios activos:</strong> {{ usuarios_total_usados }}
+                                /
+                                {% if usuarios_total_limite is None %}
+                                    Ilimitado
+                                {% else %}
+                                    {{ usuarios_total_limite }} (restan {{ usuarios_total_restantes }})
+                                {% endif %}
+                            </p>
+                        {% endif %}
                     </div>
                     <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalCrearUsuario">
                         <i class="fas fa-user-plus"></i> Nuevo Usuario

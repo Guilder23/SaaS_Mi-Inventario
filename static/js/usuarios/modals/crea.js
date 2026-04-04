@@ -13,7 +13,11 @@
         $(document).on('change', '#rol', function() {
             const rolSeleccionado = $(this).val();
             mostrarOcultarSelectores(rolSeleccionado);
+            actualizarCuposUI(rolSeleccionado);
         });
+
+        // Pintar cupos al cargar (por si el modal ya tiene rol seleccionado)
+        actualizarCuposUI($('#rol').val());
         
         // Limpiar cuando se cierra el modal
         $('#modalCrearUsuario').on('hidden.bs.modal', function() {
@@ -73,6 +77,48 @@
         } else {
             console.log('  ✓ Ocultando todos los selectores');
         }
+    }
+
+    function formatearCupo(limite, usados, restantes) {
+        const usadosTxt = (usados === null || usados === undefined) ? '0' : String(usados);
+        if (limite === null || limite === undefined) {
+            return `${usadosTxt} / Ilimitado`;
+        }
+        const restantesTxt = (restantes === null || restantes === undefined) ? String(Math.max(parseInt(limite, 10) - parseInt(usadosTxt, 10), 0)) : String(restantes);
+        return `${usadosTxt} / ${limite} (restan ${restantesTxt})`;
+    }
+
+    function actualizarCuposUI(rolSeleccionado) {
+        const box = document.getElementById('usuariosQuotaBox');
+        if (!box) return;
+
+        const spanTotal = document.getElementById('usuariosQuotaTotal');
+        const spanRol = document.getElementById('usuariosQuotaRol');
+
+        let data = null;
+        try {
+            data = JSON.parse(box.dataset.quota || '{}');
+        } catch (e) {
+            console.warn('No se pudo parsear cuota JSON', e);
+            return;
+        }
+
+        if (spanTotal && data.total) {
+            spanTotal.textContent = formatearCupo(data.total.limite, data.total.usados, data.total.restantes);
+        }
+
+        if (!spanRol) return;
+        if (!rolSeleccionado) {
+            spanRol.textContent = 'Selecciona un rol';
+            return;
+        }
+
+        const rolData = (data.roles && data.roles[rolSeleccionado]) ? data.roles[rolSeleccionado] : null;
+        if (!rolData) {
+            spanRol.textContent = 'Ilimitado';
+            return;
+        }
+        spanRol.textContent = formatearCupo(rolData.limite, rolData.usados, rolData.restantes);
     }
     
     function validarFormulario() {
@@ -162,6 +208,8 @@
         $('#almacen').removeAttr('required');
         $('#tienda').removeAttr('required');
         $('.is-invalid').removeClass('is-invalid');
+
+        actualizarCuposUI('');
     }
     
 })();

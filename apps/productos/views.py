@@ -436,6 +436,26 @@ def listar_productos(request):
         stock_en_cajas(producto)
         print(producto.nombre, producto.precio_caja, producto.precio_caja_usd)
 
+    # ======= CUPO / PLAN (SaaS) =======
+    empresa = getattr(request, 'empresa', None)
+    plan_obj = None
+    productos_limite = None
+    productos_usados = None
+    productos_restantes = None
+    if empresa and getattr(empresa, 'plan', None):
+        try:
+            from apps.planes.models import Plan
+
+            plan_obj = Plan.objects.filter(codigo=empresa.plan).first()
+            if plan_obj:
+                productos_limite = plan_obj.max_productos
+                productos_usados = Producto.all_objects.filter(empresa=empresa).count()
+                if productos_limite is not None:
+                    productos_restantes = max(productos_limite - productos_usados, 0)
+        except Exception:
+            # Si falla por cualquier motivo, no rompemos la vista
+            plan_obj = None
+
     context = {
         'productos': productos,
         'categorias': Categoria.objects.filter(activo=True).order_by('nombre'),
@@ -444,6 +464,10 @@ def listar_productos(request):
         'estado': estado,
         'es_administrador': es_administrador(request),
         'es_almacen': es_almacen(request),
+        'plan_obj': plan_obj,
+        'productos_limite': productos_limite,
+        'productos_usados': productos_usados,
+        'productos_restantes': productos_restantes,
     }
     
     return render(request, 'productos/productos.html', context)

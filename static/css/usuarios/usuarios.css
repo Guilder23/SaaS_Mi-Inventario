@@ -34,6 +34,21 @@
     font-size: 0.875rem;
 }
 
+/* Bloque de cupos (mejor contraste en header) */
+.page-subtitle.page-quota {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.98);
+}
+
+.page-subtitle.page-quota strong {
+    color: rgba(255, 255, 255, 1);
+}
+
 .page-header .btn {
     white-space: nowrap;
     font-weight: 500;

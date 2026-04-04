@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from decimal import Decimal
+import json
 from .models import PerfilUsuario
 from apps.planes.quota import can_activate_user_for_role
 
@@ -191,6 +192,70 @@ def listar_usuarios(request):
         'almacenes': Almacen.objects.filter(estado='activo'),
         'tiendas': Tienda.objects.filter(estado='activo'),
     }
+
+    # ======= CUPO / PLAN (SaaS) =======
+    empresa = getattr(request, 'empresa', None)
+    plan_obj = None
+    usuarios_total_limite = None
+    usuarios_total_usados = None
+    usuarios_total_restantes = None
+    usuarios_quota_json = None
+
+    if empresa and getattr(empresa, 'plan', None):
+        from apps.planes.models import Plan, PlanRolLimite
+
+        plan_obj = Plan.objects.filter(codigo=empresa.plan).first()
+        if plan_obj:
+            usuarios_total_limite = plan_obj.max_usuarios_total
+            usuarios_total_usados = PerfilUsuario.all_objects.filter(
+                empresa=empresa,
+                activo=True,
+                usuario__isnull=False,
+                usuario__is_active=True,
+            ).count()
+            if usuarios_total_limite is not None:
+                usuarios_total_restantes = max(usuarios_total_limite - usuarios_total_usados, 0)
+
+            roles = [r for r, _label in PlanRolLimite.ROLES]
+            roles_data = {}
+            for r in roles:
+                limite_r_obj = PlanRolLimite.objects.filter(plan=plan_obj, rol=r).first()
+                limite_r = limite_r_obj.max_usuarios if limite_r_obj else None
+                usados_r = PerfilUsuario.all_objects.filter(
+                    empresa=empresa,
+                    rol=r,
+                    activo=True,
+                    usuario__isnull=False,
+                    usuario__is_active=True,
+                ).count()
+                restantes_r = max(limite_r - usados_r, 0) if limite_r is not None else None
+                roles_data[r] = {
+                    'limite': limite_r,
+                    'usados': usados_r,
+                    'restantes': restantes_r,
+                }
+
+            usuarios_quota_json = json.dumps({
+                'plan': {
+                    'codigo': plan_obj.codigo,
+                    'nombre': plan_obj.nombre,
+                    'activo': bool(plan_obj.activo),
+                },
+                'total': {
+                    'limite': usuarios_total_limite,
+                    'usados': usuarios_total_usados,
+                    'restantes': usuarios_total_restantes,
+                },
+                'roles': roles_data,
+            })
+
+    context.update({
+        'plan_obj': plan_obj,
+        'usuarios_total_limite': usuarios_total_limite,
+        'usuarios_total_usados': usuarios_total_usados,
+        'usuarios_total_restantes': usuarios_total_restantes,
+        'usuarios_quota_json': usuarios_quota_json,
+    })
     
     return render(request, 'usuarios/usuarios.html', context)
 

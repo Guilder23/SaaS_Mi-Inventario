@@ -18,6 +18,19 @@
     padding: 1.25rem 1.5rem;
 }
 
+/* Cupos: que se note más sin ser chillón */
+#modalCrearProducto .quota-alert {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+    border-left: 4px solid #1e3a8a;
+}
+
+#modalCrearProducto .quota-alert .text-muted {
+    color: #1e40af !important;
+    opacity: 0.9;
+}
+
 #modalCrearProducto .form-group {
     margin-bottom: 0.875rem;
 }

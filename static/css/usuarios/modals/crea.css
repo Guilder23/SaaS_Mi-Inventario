@@ -18,6 +18,14 @@
     padding: 1.25rem 1.5rem;
 }
 
+/* Cupos: mejor contraste */
+#modalCrearUsuario .quota-alert {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+    border-left: 4px solid #1e3a8a;
+}
+
 #modalCrearUsuario .form-group {
     margin-bottom: 0.875rem;
 }

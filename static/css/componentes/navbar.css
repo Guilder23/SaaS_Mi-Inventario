@@ -31,6 +31,34 @@
     gap: 0.75rem;
 }
 
+/* Empresa activa (no tenía estilos y se perdía en el fondo) */
+.navbar-empresa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radio-md);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    max-width: 260px;
+    min-width: 0;
+}
+
+.navbar-empresa span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.navbar-empresa i {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
 .sidebar-toggle-btn {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);

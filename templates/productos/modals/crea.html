@@ -13,6 +13,21 @@
             <form id="formCrearProducto" method="post" action="{% url 'crear_producto' %}" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
+                    {% if plan_obj %}
+                        <div class="alert alert-info py-2 quota-alert" role="alert">
+                            <strong>Cupo de productos:</strong>
+                            {% if productos_limite is None %}
+                                Ilimitado
+                                {% if productos_usados is not None %}
+                                    <span class="text-muted">(creados: {{ productos_usados }})</span>
+                                {% endif %}
+                            {% else %}
+                                {% if productos_usados is not None %}{{ productos_usados }}{% else %}0{% endif %}
+                                / {{ productos_limite }}
+                                <span class="text-muted">(restan {{ productos_restantes }})</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                     <div class="row">
                         <!-- COLUMNA IZQUIERDA -->
                         <div class="col-md-6">

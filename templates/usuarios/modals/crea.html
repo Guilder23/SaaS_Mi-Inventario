@@ -111,6 +111,23 @@
                                 </select>
                             </div>
 
+                            {% if usuarios_quota_json %}
+                            <div
+                                class="alert alert-info py-2 quota-alert"
+                                id="usuariosQuotaBox"
+                                data-quota="{{ usuarios_quota_json|escapejs }}"
+                            >
+                                <div>
+                                    <strong>Cupo total (usuarios activos):</strong>
+                                    <span id="usuariosQuotaTotal">-</span>
+                                </div>
+                                <div>
+                                    <strong>Cupo para el rol:</strong>
+                                    <span id="usuariosQuotaRol">Selecciona un rol</span>
+                                </div>
+                            </div>
+                            {% endif %}
+
                             <!-- Selector de Almacén (Solo para Personal de Almacén) -->
                             <div class="form-group" id="grupoAlmacen" style="display: none;">
                                 <label for="almacen" class="form-label">Almacén <span class="text-danger">*</span></label>

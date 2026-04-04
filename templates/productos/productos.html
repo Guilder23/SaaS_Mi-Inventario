@@ -21,6 +21,21 @@
                 <i class="fas fa-box"></i> Gestión de Productos
             </h1>
             <p class="page-subtitle">Administra el catálogo de productos</p>
+            {% if plan_obj %}
+                <p class="page-subtitle page-quota mb-0">
+                    <strong>Plan:</strong> {{ plan_obj.nombre }}
+                    &nbsp;|&nbsp;
+                    <strong>Productos:</strong>
+                    {% if productos_usados is not None %}{{ productos_usados }}{% else %}0{% endif %}
+                    /
+                    {% if productos_limite is None %}
+                        Ilimitado
+                    {% else %}
+                        {{ productos_limite }}
+                        (restan {{ productos_restantes }})
+                    {% endif %}
+                </p>
+            {% endif %}
         </div>
         {% if es_almacen %}
         <!--<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modalCrearProducto">

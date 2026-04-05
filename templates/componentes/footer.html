@@ -3,18 +3,16 @@
 <!-- FOOTER -->
 <footer class="footer">
     <div class="footer-container">
- 
         <div class="footer-bottom">
             <div class="footer-section">
-                <h4> <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo Sistema de Inventario" class="footer-logo"> Almazen</h4>
+                 <h4> <img src="{% static 'img/logoAlmacen.png' %}" alt="Logo Sistema de Inventario" class="footer-logo">Mi Inventario</h4>
             </div>
-            <p>&copy; 2026 Sistema de Inventario - v1.0.0</p>
+            <p>&copy; {% now "Y" %} Mi Inventario - v1.0.0</p>
             <div class="footer-legal">
-                <a href="#">Términos</a>
-                <a href="#">Privacidad</a>
-                <a href="#">Licencia</a>
+                <a href="{% url 'soporte_tickets' %}">Soporte</a>
+                <a href="{% url 'configuracion' %}">Configuración</a>
+                <a href="{% url 'ayuda' %}">Ayuda</a>
             </div>
         </div>
     </div>
-</footer>
 </footer>

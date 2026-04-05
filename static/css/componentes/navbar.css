@@ -160,6 +160,11 @@
     position: relative;
 }
 
+/* Botón de tema (claro/oscuro) */
+.navbar-theme {
+    position: relative;
+}
+
 .navbar-icon-btn {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -261,7 +266,7 @@
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    background: white;
+    background: var(--color-blanco);
     border-radius: var(--radio-lg);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     min-width: 260px;
@@ -288,7 +293,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--color-fondo) 0%, var(--color-gris-claro) 100%);
     font-size: 0.875rem;
 }
 
@@ -296,7 +301,7 @@
     font-weight: 500;
     font-size: 0.7rem;
     color: var(--color-texto-secundario);
-    background: white;
+    background: var(--color-blanco);
     padding: 0.25rem 0.5rem;
     border-radius: 10px;
 }
@@ -347,7 +352,7 @@
 /* Dropdown de usuario mejorado */
 .dropdown-user-header {
     padding: 1.25rem 1rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, var(--color-fondo) 0%, var(--color-gris-claro) 100%);
     border-bottom: 1px solid var(--color-borde);
     display: flex;
     gap: 0.875rem;
@@ -365,7 +370,7 @@
     color: white;
     font-size: 1.25rem;
     flex-shrink: 0;
-    border: 3px solid white;
+    border: 3px solid var(--color-borde);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -479,14 +484,14 @@
 }
 
 .notificaciones-dropdown .dropdown-item:hover {
-    background: #f9fafb;
+    background: var(--color-fondo);
 }
 
 .dropdown-footer {
     padding: 0.75rem 1rem;
     text-align: center;
     border-top: 1px solid var(--color-borde);
-    background: #fafbfc;
+    background: var(--color-fondo);
 }
 
 .dropdown-footer a {
@@ -613,7 +618,7 @@
     top: 50px;
     right: 0;
     width: 350px;
-    background: white;
+    background: var(--color-blanco);
     border-radius: 0.5rem;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     z-index: 1000;
@@ -636,23 +641,23 @@
 /* Header del Dropdown */
 .dropdown-header {
     padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--color-borde);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8f9fa;
+    background: var(--color-fondo);
     border-radius: 0.5rem 0.5rem 0 0;
 }
 
 .dropdown-header span {
     font-weight: 600;
-    color: #111827;
+    color: var(--color-texto);
     font-size: 0.9rem;
 }
 
 .dropdown-header small {
     font-size: 0.7rem;
-    color: #6b7280;
+    color: var(--color-texto-secundario);
 }
 
 /* Items del Dropdown */
@@ -666,7 +671,7 @@
     display: flex;
     gap: 0.75rem;
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--color-borde);
     text-decoration: none;
     color: inherit;
     transition: background-color 0.2s;
@@ -678,15 +683,15 @@
 }
 
 .dropdown-item:hover {
-    background-color: #f8f9fa;
+    background-color: var(--color-fondo);
 }
 
 .dropdown-item.notificacion-nueva {
-    background-color: #f0f9ff;
+    background-color: rgba(30, 58, 138, 0.08);
 }
 
 .dropdown-item.notificacion-nueva:hover {
-    background-color: #e0f2fe;
+    background-color: rgba(30, 58, 138, 0.12);
 }
 
 /* Icono de Notificación */
@@ -738,7 +743,7 @@
 
 .notification-content strong {
     display: block;
-    color: #111827;
+    color: var(--color-texto);
     font-size: 0.8rem;
     margin-bottom: 0.125rem;
     word-break: break-word;
@@ -746,7 +751,7 @@
 
 .notification-content p {
     display: block;
-    color: #6b7280;
+    color: var(--color-texto-secundario);
     font-size: 0.75rem;
     margin: 0 0 0.125rem 0;
     line-height: 1.2;
@@ -756,7 +761,7 @@
 
 .notification-content small {
     display: block;
-    color: #9ca3af;
+    color: var(--color-texto-secundario);
     font-size: 0.7rem;
 }
 
@@ -764,7 +769,7 @@
 .no-notificaciones {
     padding: 2rem 1rem;
     text-align: center;
-    color: #9ca3af;
+    color: var(--color-texto-secundario);
 }
 
 .no-notificaciones p {
@@ -774,8 +779,8 @@
 /* Footer del Dropdown */
 .dropdown-footer {
     padding: 0.5rem 0.75rem;
-    border-top: 1px solid #e5e7eb;
-    background: #f8f9fa;
+    border-top: 1px solid var(--color-borde);
+    background: var(--color-fondo);
     border-radius: 0 0 0.5rem 0.5rem;
     text-align: center;
 }

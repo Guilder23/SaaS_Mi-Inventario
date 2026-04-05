@@ -25,20 +25,12 @@
 
         <!-- DERECHA: Notificaciones y Usuario -->
         <div class="navbar-right">
-            <!-- Moneda actual: -->
-            <div class="navbar-tc">
-                <i class="fas fa-money-bill-wave"></i>
-                {% if navbar_moneda_actual %}
-                    <span class="tc-text">
-                        <span class="tc-label">{{ navbar_moneda_actual.moneda }}</span>
-                        <span class="tc-sep">-</span>
-                        <span class="tc-value">Bs {{ navbar_moneda_actual.valor|stringformat:"0.2f" }}</span>
-                    </span>
-                {% else %}
-                    <span class="tc-text">
-                        <span class="tc-label">Sin tipo de cambio</span>
-                    </span>
-                {% endif %}
+
+            <!-- Tema (modo claro/oscuro) -->
+            <div class="navbar-theme">
+                <button class="navbar-icon-btn" id="themeToggleBtn" type="button" title="Modo oscuro" aria-label="Cambiar tema">
+                    <i class="fas fa-moon" id="themeToggleIcon"></i>
+                </button>
             </div>
 
             <!-- Comunicados (Broadcast) -->

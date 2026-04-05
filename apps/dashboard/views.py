@@ -409,3 +409,10 @@ def index(request):
         'roles': getattr(PerfilUsuario, 'ROLES', [])
     }
     return render(request, 'index.html', context)
+
+
+@login_required(login_url='index')
+def ayuda(request):
+    """Centro de soporte, guía y FAQ."""
+    return render(request, 'dashboard/ayuda.html')
+

@@ -14,6 +14,9 @@ urlpatterns = [
     # Dashboard (solo autenticados)
     path('dashboard/', views.dashboard, name='dashboard'),
     path('dashboard/superadmin/', dashboard_views.superadmin_dashboard, name='dashboard_superadmin'),
+
+    # Ayuda
+    path('ayuda/', dashboard_views.ayuda, name='ayuda'),
     
     # Gestión de usuarios (solo administrador)
     path('usuarios/', views.listar_usuarios, name='listar_usuarios'),

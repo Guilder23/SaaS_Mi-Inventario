@@ -1,0 +1,89 @@
+.ayuda-container {
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+.card-ayuda {
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 25px;
+}
+
+.section-title {
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.guia-step {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.step-number {
+  min-width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  font-weight: 700;
+}
+
+.faq-search {
+  max-width: 520px;
+}
+
+.faq-item {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .faq-item {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.faq-question {
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.faq-answer {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: none;
+}
+
+.faq-item.is-open .faq-answer {
+  display: block;
+}
+
+.ayuda-version-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ayuda-version-badge {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
+  float: none !important;
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+}

@@ -1,0 +1,144 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Centro de Ayuda{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/ayuda.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="ayuda-container">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-5">
+            <h1 class="display-4"><i class="fas fa-question-circle text-primary"></i> Centro de Ayuda</h1>
+            <p class="lead text-muted">Accede al centro de soporte, manuales de usuario y preguntas frecuentes (FAQ).</p>
+        </div>
+
+        <!-- 1. GUÍA RÁPIDA -->
+        <div class="card card-ayuda">
+            <div class="card-body p-4">
+                <h3 class="section-title"><i class="fas fa-book-open"></i> Guía rápida de uso</h3>
+                
+                <div class="guia-step">
+                    <div class="step-number">1</div>
+                    <div>
+                        <h5>Configuración de Perfil y Empresa</h5>
+                        <p class="text-muted">Asegúrate de que los datos de tu empresa estén actualizados. El sistema adapta las cuotas de productos y usuarios según el plan asignado por el administrador general.</p>
+                    </div>
+                </div>
+
+                <div class="guia-step">
+                    <div class="step-number">2</div>
+                    <div>
+                        <h5>Gestión de Productos e Inventario</h5>
+                        <p class="text-muted">Registra tus productos en el módulo 'Productos'. Luego, dirígete a 'Inventario' para gestionar el stock inicial y definir los niveles críticos (alertas).</p>
+                    </div>
+                </div>
+
+                <div class="guia-step">
+                    <div class="step-number">3</div>
+                    <div>
+                        <h5>Movimientos y Traspasos</h5>
+                        <p class="text-muted">Usa 'Ventas' para salidas diarias y 'Traspasos' para mover mercadería entre almacenes y tiendas físicas sin perder el control del stock global.</p>
+                    </div>
+                </div>
+
+                <div class="guia-step">
+                    <div class="step-number">4</div>
+                    <div>
+                        <h5>Análisis y Reportes</h5>
+                        <p class="text-muted">Consulta el Dashboard para ver tus KPIs en tiempo real. Genera reportes detallados en PDF o Excel para auditorías de inventario y cierres de caja.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. FAQ -->
+        <div class="card card-ayuda">
+            <div class="card-body p-4">
+                <h3 class="section-title"><i class="fas fa-comments"></i> Preguntas Frecuentes (FAQ)</h3>
+
+                <div class="form-group faq-search">
+                    <input type="text" class="form-control" id="faqSearch" placeholder="Buscar en preguntas frecuentes...">
+                    <small class="text-muted">Escribe para filtrar por pregunta o respuesta.</small>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        ¿Por qué no puedo crear más productos?
+                        <i class="fas fa-chevron-down small"></i>
+                    </div>
+                    <div class="faq-answer">
+                        El sistema SaaS limita la cantidad de productos activos según tu plan contratado. Si necesitas espacio adicional, solicita un upgrade de plan a través del soporte técnico.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        ¿Cómo funciona el modo oscuro?
+                        <i class="fas fa-chevron-down small"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Puedes alternar entre el modo claro y oscuro usando el icono de la luna/sol en el menú superior. Esta característica puede estar restringida según los permisos definidos en tu plan.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        ¿Qué es un Traspaso Interno?
+                        <i class="fas fa-chevron-down small"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Es un movimiento de stock entre dos ubicaciones de tu misma empresa (ej: de Almacén Central a Tienda Norte). No genera una venta, sino un ajuste de inventario balanceado.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        ¿Cómo recupero mi contraseña?
+                        <i class="fas fa-chevron-down small"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Si has olvidado tu acceso, contacta al administrador de tu empresa. Él puede resetear tu contraseña desde el módulo de 'Gestión de Usuarios'.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. SOPORTE Y VERSIÓN -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-ayuda h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-headset"></i> Contacto Soporte</h5>
+                        <p class="text-muted small">¿Tienes un problema técnico o necesitas una funcionalidad personalizada?</p>
+                        <ul class="list-unstyled mb-0">
+                            <li><i class="fas fa-envelope text-primary"></i> soporte@misistema.com</li>
+                            <li><i class="fab fa-whatsapp text-success"></i> +51 987 654 321</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-ayuda h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <div class="ayuda-version-header">
+                            <h5 class="card-title mb-0">Versión del Sistema</h5>
+                            <span class="badge badge-primary ayuda-version-badge">v2.4.0 (Abril 2026)</span>
+                        </div>
+                        <p class="mt-2 text-muted small">Estado: Estable <i class="fas fa-check-circle text-success"></i></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/dashboard/ayuda.js' %}"></script>
+{% endblock %}

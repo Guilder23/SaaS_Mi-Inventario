@@ -165,6 +165,11 @@
     position: relative;
 }
 
+/* Botón de soporte (tickets/mensajes) */
+.navbar-soporte {
+    position: relative;
+}
+
 .navbar-icon-btn {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -547,6 +552,11 @@
         padding: 0 0.875rem;
     }
 
+    /* En celular/tablet no mostrar la empresa activa en el navbar */
+    .navbar-empresa {
+        display: none;
+    }
+
     .navbar-center {
         display: none;
     }
@@ -595,7 +605,13 @@
 /* Badges (Notificaciones y Comunicados) */
 .navbar-notificaciones {
     position: relative;
-    margin-right: 1.5rem;
+    margin-right: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    .navbar-notificaciones {
+        margin-right: 0.125rem;
+    }
 }
 
 .navbar-notificaciones .badge,

@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'apps.moneda',
     'apps.planes',
     'apps.comunicados',
+    'apps.soporte',
 ]
 
 MIDDLEWARE = [

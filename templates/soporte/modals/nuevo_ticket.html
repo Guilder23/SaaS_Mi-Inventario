@@ -1,0 +1,90 @@
+{% load static %}
+
+<!-- Modal: Nuevo Ticket -->
+<div class="modal fade" id="modalNuevoTicket" tabindex="-1" role="dialog" aria-labelledby="modalNuevoTicketLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content soporte-modal">
+            <div class="modal-header soporte-modal-header">
+                <h5 class="modal-title" id="modalNuevoTicketLabel">
+                    <i class="fas fa-plus-circle"></i> Nuevo Ticket
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body soporte-modal-body">
+                <div class="row">
+                    <div class="col-lg-7">
+                        <div class="soporte-modal-section">
+                            <h6 class="soporte-modal-section-title">Crear nuevo ticket</h6>
+                            <form method="post" enctype="multipart/form-data" id="formNuevoTicket">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="crear_ticket">
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-7">
+                                        <label for="asuntoTicket">Asunto</label>
+                                        <input type="text" class="form-control" id="asuntoTicket" name="asunto" placeholder="Ej: Error al generar reporte" required>
+                                    </div>
+                                    <div class="form-group col-md-5">
+                                        <label for="categoriaTicket">Categoria</label>
+                                        <select class="form-control" id="categoriaTicket" name="categoria">
+                                            {% for value, label in categorias %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-5">
+                                        <label for="prioridadTicket">Prioridad</label>
+                                        <select class="form-control" id="prioridadTicket" name="prioridad">
+                                            {% for value, label in prioridades %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-7">
+                                        <label for="adjuntoTicket">Adjunto (opcional)</label>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="adjuntoTicket" name="adjunto">
+                                            <label class="custom-file-label" for="adjuntoTicket">Seleccionar archivo</label>
+                                        </div>
+                                        <small class="text-muted">Adjunta una captura o archivo de apoyo.</small>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="mensajeTicket">Mensaje</label>
+                                    <textarea class="form-control" id="mensajeTicket" name="mensaje" rows="4" placeholder="Describe tu problema o adjunta un archivo"></textarea>
+                                </div>
+
+                                <div class="soporte-modal-actions">
+                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Enviar Ticket
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="soporte-modal-section soporte-modal-tips">
+                            <h6 class="soporte-modal-section-title">Consejos rapidos</h6>
+                            <ul class="list-unstyled soporte-tips">
+                                <li><i class="fas fa-check-circle"></i> Describe el problema con detalle.</li>
+                                <li><i class="fas fa-check-circle"></i> Adjunta una captura si es posible.</li>
+                                <li><i class="fas fa-check-circle"></i> Nuestro tiempo promedio es 24h.</li>
+                            </ul>
+                            <div class="soporte-horario">
+                                <strong>Horario:</strong> Lun a Sab, 9:00 - 19:00
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

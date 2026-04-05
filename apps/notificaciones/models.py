@@ -18,6 +18,7 @@ class Notificacion(EmpresaOwnedModel):
         ('pago_pendiente', 'Pago Pendiente'),
         ('pago_aprobado', 'Pago Aprobado'),
         ('pago_rechazado', 'Pago Rechazado'),
+        ('soporte', 'Soporte'),
         ('general', 'General'),
     )
     

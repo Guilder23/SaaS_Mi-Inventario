@@ -67,6 +67,12 @@
                     <span>Comunicados</span>
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{% url 'soporte_admin_list' %}" class="sidebar-link {% if 'soporte' in request.path %}active{% endif %}" title="Soporte">
+                    <i class="fas fa-headset"></i>
+                    <span>Soporte</span>
+                </a>
+            </li>
             {% else %}
             <!-- Dashboard - Todos los usuarios -->
             <li class="sidebar-item">
@@ -391,6 +397,12 @@
                     <i class="fas fa-bell"></i>
                     <span>Notificaciones</span>
                     <span class="sidebar-badge" id="notificacion-badge">0</span>
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'soporte_tickets' %}" class="sidebar-link {% if 'soporte' in request.path %}active{% endif %}" title="Soporte">
+                    <i class="fas fa-headset"></i>
+                    <span>Soporte</span>
                 </a>
             </li>
             {% endif %}

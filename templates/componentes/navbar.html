@@ -58,6 +58,15 @@
                 </div>
             </div>
 
+            <!-- Soporte (Tickets/Mensajes) -->
+            <div class="navbar-soporte">
+                <a class="navbar-icon-btn" id="soporteBtn" title="Soporte"
+                   href="{% if user.is_superuser %}{% url 'soporte_admin_list' %}{% elif user.is_staff and not user.perfil.empresa %}{% url 'soporte_admin_list' %}{% else %}{% url 'soporte_tickets' %}{% endif %}">
+                    <i class="fas fa-comments"></i>
+                    <span class="badge" id="soporteBadge">0</span>
+                </a>
+            </div>
+
             <!-- Notificaciones -->
             <div class="navbar-notificaciones">
                 <button class="navbar-icon-btn" id="notificacionesBtn" title="Notificaciones">

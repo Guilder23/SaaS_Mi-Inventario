@@ -5,6 +5,29 @@ from django.views.decorators.http import require_http_methods
 from .models import Notificacion
 from django.utils import timezone
 
+
+def _qs_notificaciones_filtradas(request):
+    """QS de notificaciones para navbar (campana) y contadores.
+
+    Por defecto excluye las de tipo 'soporte' para que se muestren en su icono dedicado.
+
+    Query params:
+    - tipo: filtra SOLO ese tipo (ej. ?tipo=soporte)
+    - include_soporte: si es '1'/'true', incluye soporte cuando no se usa 'tipo'
+    """
+
+    qs = Notificacion.objects.filter(usuario=request.user)
+
+    tipo = (request.GET.get("tipo") or "").strip()
+    if tipo:
+        return qs.filter(tipo=tipo)
+
+    include_soporte = (request.GET.get("include_soporte") or "").strip().lower()
+    if include_soporte in {"1", "true", "yes"}:
+        return qs
+
+    return qs.exclude(tipo="soporte")
+
 @login_required
 def listar_notificaciones(request):
     """Listar todas las notificaciones del usuario"""
@@ -24,7 +47,7 @@ def listar_notificaciones(request):
 def obtener_notificaciones(request):
     """Obtener notificaciones en JSON para cargar dinámicamente"""
     try:
-        notificaciones = Notificacion.objects.filter(usuario=request.user).order_by('-fecha_creacion')[:10]
+        notificaciones = _qs_notificaciones_filtradas(request).order_by('-fecha_creacion')[:10]
 
         data = []
         for notif in notificaciones:
@@ -55,6 +78,7 @@ def obtener_notificaciones(request):
                 'pago_pendiente': 'fa-receipt bg-warning',
                 'pago_aprobado': 'fa-receipt bg-success',
                 'pago_rechazado': 'fa-receipt bg-danger',
+                'soporte': 'fa-comments bg-primary',
                 'general': 'fa-bell bg-muted',
             }
             
@@ -71,7 +95,7 @@ def obtener_notificaciones(request):
                 'url': notif.url or '#',
             })
 
-        no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+        no_leidas = _qs_notificaciones_filtradas(request).filter(leida=False).count()
         
         return JsonResponse({
             'notificaciones': data,
@@ -84,7 +108,7 @@ def obtener_notificaciones(request):
 def contador_notificaciones(request):
     """Obtener cantidad de notificaciones no leídas"""
     try:
-        no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+        no_leidas = _qs_notificaciones_filtradas(request).filter(leida=False).count()
         return JsonResponse({'no_leidas': no_leidas})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -104,11 +128,11 @@ def marcar_leida(request, id):
 def marcar_todas_leidas(request):
     """Marcar todas las notificaciones como leídas"""
     try:
-        notificaciones = Notificacion.objects.filter(usuario=request.user, leida=False)
+        notificaciones = _qs_notificaciones_filtradas(request).filter(leida=False)
         for notif in notificaciones:
             notif.marcar_como_leida()
-        
-        no_leidas = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+
+        no_leidas = _qs_notificaciones_filtradas(request).filter(leida=False).count()
         
         return JsonResponse({
             'success': True,

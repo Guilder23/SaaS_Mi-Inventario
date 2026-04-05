@@ -40,7 +40,7 @@ function marcarLeidaNotificacion(id) {
 
 function marcarTodasLeidas() {
     if (confirm('¿Marcar todas las notificaciones como leídas?')) {
-        fetch('/notificaciones/marcar-todas-leidas/', {
+        fetch('/notificaciones/marcar-todas-leidas/?include_soporte=1', {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',

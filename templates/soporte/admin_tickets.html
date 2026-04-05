@@ -1,0 +1,96 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Soporte - Admin{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/soporte/admin_tickets.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">
+                <i class="fas fa-headset"></i> Tickets de Soporte
+            </h1>
+            <p class="page-subtitle">Gestion centralizada de solicitudes de clientes</p>
+        </div>
+    </div>
+
+    <div class="card soporte-card filtros-card">
+        <div class="card-body">
+            <form method="get" class="form-inline filtros-form">
+                <div class="form-group mr-2">
+                    <input type="text" class="form-control" name="q" placeholder="Buscar por codigo, asunto o empresa" value="{{ query }}">
+                </div>
+                <div class="form-group mr-2">
+                    <select class="form-control" name="estado">
+                        <option value="">Todos los estados</option>
+                        {% for value, label in estados %}
+                        <option value="{{ value }}" {% if value == estado_actual %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card card-tabla mt-3">
+        <div class="table-responsive">
+            <table class="table table-sm tabla-tickets mb-0">
+                <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Empresa</th>
+                        <th>Cliente</th>
+                        <th>Asunto</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Actualizado</th>
+                        <th class="text-center">Abrir</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td><span class="ticket-code">{{ ticket.codigo }}</span></td>
+                        <td>{{ ticket.empresa.nombre|default:"-" }}</td>
+                        <td>{{ ticket.creado_por.username|default:"-" }}</td>
+                        <td>
+                            <div class="text-truncate" title="{{ ticket.asunto }}">{{ ticket.asunto }}</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-prioridad prioridad-{{ ticket.prioridad }}">{{ ticket.get_prioridad_display }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-estado estado-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+                        </td>
+                        <td><small>{{ ticket.fecha_actualizacion|date:"d/m/Y H:i" }}</small></td>
+                        <td class="text-center">
+                            <a href="{% url 'soporte_ticket_detalle' ticket.id %}" class="btn btn-sm btn-info" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-2"></i>
+                            <p class="text-muted">No hay tickets registrados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{% static 'js/soporte/admin_tickets.js' %}"></script>
+{% endblock %}

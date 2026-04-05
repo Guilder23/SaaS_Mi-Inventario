@@ -1,0 +1,175 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Ticket {{ ticket.codigo }}{% endblock %}
+
+{% block estilos_extra %}
+<link rel="stylesheet" href="{% static 'css/soporte/ticket_detalle.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="ticket-header">
+        <div class="ticket-title">
+            <h1>
+                <i class="fas fa-ticket-alt"></i>
+                {{ ticket.codigo }} - {{ ticket.asunto }}
+            </h1>
+            <div class="ticket-badges">
+                <span class="badge badge-estado estado-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+                <span class="badge badge-prioridad prioridad-{{ ticket.prioridad }}">{{ ticket.get_prioridad_display }}</span>
+                <span class="badge badge-light">{{ ticket.get_categoria_display }}</span>
+            </div>
+        </div>
+        <a href="{% if es_admin %}{% url 'soporte_admin_list' %}{% else %}{% url 'soporte_tickets' %}{% endif %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="ticket-layout">
+        <div class="ticket-chat card">
+            <div class="card-header ticket-chat-header">
+                <div class="ticket-chat-header-main">
+                    <div class="ticket-chat-peer">
+                        {{ ticket.empresa.nombre|default:"-" }}
+                        <span class="ticket-chat-sep">•</span>
+                        {{ ticket.creado_por.get_full_name|default:ticket.creado_por.username|default:"-" }}
+                    </div>
+                    <div class="ticket-chat-code">{{ ticket.codigo }}</div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chat-body" id="chatBody">
+                    {% for msg in mensajes %}
+                    <div class="chat-row {% if msg.autor_id and msg.autor_id == user.id %}chat-right{% else %}chat-left{% endif %}">
+                        <div class="chat-bubble">
+                            <div class="chat-meta">
+                                <span class="chat-author">
+                                    {% if msg.autor_id and msg.autor_id == user.id %}
+                                        Tú
+                                    {% elif msg.rol == 'soporte' %}
+                                        Soporte
+                                    {% else %}
+                                        {{ msg.autor.username|default:"Cliente" }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            {% if msg.contenido %}
+                            <div class="chat-text">{{ msg.contenido|linebreaksbr }}</div>
+                            {% endif %}
+                            {% if msg.adjunto %}
+                            <div class="chat-attachment">
+                                {% if msg.adjunto.url|lower|slice:"-4:" == ".png" or msg.adjunto.url|lower|slice:"-4:" == ".jpg" or msg.adjunto.url|lower|slice:"-5:" == ".jpeg" or msg.adjunto.url|lower|slice:"-4:" == ".gif" %}
+                                    <a href="{{ msg.adjunto.url }}" target="_blank" rel="noopener" class="chat-image-link" aria-label="Ver imagen adjunta">
+                                        <img src="{{ msg.adjunto.url }}" alt="Adjunto" class="chat-image">
+                                    </a>
+                                {% else %}
+                                    <a href="{{ msg.adjunto.url }}" target="_blank" rel="noopener">
+                                        <i class="fas fa-paperclip"></i> {{ msg.adjunto.name|cut:"soporte/adjuntos/" }}
+                                    </a>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <div class="chat-time">{{ msg.creado_en|date:"H:i" }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="chat-empty">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>No hay mensajes aun. Escribe para iniciar la conversacion.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <form method="post" enctype="multipart/form-data" class="chat-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="enviar_mensaje">
+                    <div class="chat-composer">
+                        <input type="file" id="adjunto" name="adjunto" class="chat-file-input">
+                        <label class="chat-icon-btn" for="adjunto" title="Adjuntar imagen o archivo" aria-label="Adjuntar">
+                            <i class="fas fa-image"></i>
+                        </label>
+
+                        <textarea class="chat-input" id="mensaje" name="mensaje" rows="1" placeholder="Escribe tu mensaje..."></textarea>
+
+                        <button type="submit" class="chat-send-btn" title="Enviar" aria-label="Enviar">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="chat-file-name" id="adjuntoNombre" hidden></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="ticket-side card">
+            <div class="card-body">
+                <h5 class="card-title">Detalle del ticket</h5>
+                <div class="ticket-info">
+                    <div>
+                        <span>Empresa</span>
+                        <strong>{{ ticket.empresa.nombre|default:"-" }}</strong>
+                    </div>
+                    <div>
+                        <span>Cliente</span>
+                        <strong>{{ ticket.creado_por.username|default:"-" }}</strong>
+                    </div>
+                    <div>
+                        <span>Creado</span>
+                        <strong>{{ ticket.fecha_creacion|date:"d/m/Y H:i" }}</strong>
+                    </div>
+                    <div>
+                        <span>Actualizado</span>
+                        <strong>{{ ticket.fecha_actualizacion|date:"d/m/Y H:i" }}</strong>
+                    </div>
+                    <div>
+                        <span>Ultimo mensaje</span>
+                        <strong>{{ ticket.get_ultimo_mensaje_por_display }}</strong>
+                    </div>
+                </div>
+
+                {% if es_admin %}
+                <hr>
+                <h6>Gestion rapida</h6>
+                <form method="post" class="ticket-update-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="actualizar_ticket">
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select class="form-control" id="estado" name="estado">
+                            {% for value, label in estados %}
+                            <option value="{{ value }}" {% if ticket.estado == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prioridad">Prioridad</label>
+                        <select class="form-control" id="prioridad" name="prioridad">
+                            {% for value, label in prioridades %}
+                            <option value="{{ value }}" {% if ticket.prioridad == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="asignado_a">Asignado a</label>
+                        <select class="form-control" id="asignado_a" name="asignado_a">
+                            <option value="">Sin asignar</option>
+                            {% for user in soporte_users %}
+                            <option value="{{ user.id }}" {% if ticket.asignado_a_id == user.id %}selected{% endif %}>{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-save"></i> Guardar cambios
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script src="{% static 'js/soporte/ticket_detalle.js' %}"></script>
+{% endblock %}

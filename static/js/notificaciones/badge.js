@@ -3,9 +3,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Actualizar contador de notificaciones
     actualizarBadgeNotificaciones();
+    actualizarBadgeSoporte();
     
     // Actualizar cada 30 segundos
     setInterval(actualizarBadgeNotificaciones, 30000);
+    setInterval(actualizarBadgeSoporte, 30000);
 });
 
 function actualizarBadgeNotificaciones() {
@@ -29,4 +31,19 @@ function actualizarBadgeNotificaciones() {
             }
         })
         .catch(error => console.log('Error actualizando notificaciones:', error));
+}
+
+function actualizarBadgeSoporte() {
+    fetch('/notificaciones/contador/?tipo=soporte')
+        .then(response => response.json())
+        .then(data => {
+            const cantidad = data.no_leidas || 0;
+
+            const badgeSoporte = document.getElementById('soporteBadge');
+            if (badgeSoporte) {
+                badgeSoporte.textContent = cantidad;
+                badgeSoporte.style.display = cantidad > 0 ? 'flex' : 'none';
+            }
+        })
+        .catch(error => console.log('Error actualizando soporte:', error));
 }

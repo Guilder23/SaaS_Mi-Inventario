@@ -1,0 +1,182 @@
+/* ============================================================================
+   SOPORTE - LISTA DE TICKETS (CLIENTE)
+   ============================================================================ */
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 2rem;
+    background: var(--color-primario);
+    border-radius: 0.5rem;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.page-title {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.soporte-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+}
+
+.soporte-card .card-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.info-card {
+    background: #f8fafc;
+}
+
+.soporte-tips li {
+    margin-bottom: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #0f172a;
+}
+
+.soporte-tips i {
+    color: #16a34a;
+}
+
+.soporte-horario {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border-radius: 0.5rem;
+    border: 1px dashed #cbd5f5;
+    font-size: 0.9rem;
+}
+
+.card-tabla {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.tabla-tickets thead {
+    background: var(--color-primario);
+    color: #ffffff;
+}
+
+.tabla-tickets thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border: none;
+    padding: 0.85rem 0.75rem;
+}
+
+.tabla-tickets tbody td {
+    padding: 0.75rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.9rem;
+}
+
+.ticket-code {
+    font-weight: 600;
+    color: var(--color-secundario);
+}
+
+.badge-prioridad {
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.5rem;
+}
+
+.prioridad-baja {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.prioridad-media {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.prioridad-alta {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.prioridad-critica {
+    background: #fecaca;
+    color: #7f1d1d;
+}
+
+.badge-estado {
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.5rem;
+}
+
+.estado-abierto {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.estado-en_proceso {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.estado-respondido {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.estado-cerrado {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+@media (max-width: 992px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+}
+
+html[data-theme="dark"] .soporte-card,
+html[data-theme="dark"] .card-tabla {
+    background-color: var(--color-blanco);
+    border-color: var(--color-borde);
+}
+
+html[data-theme="dark"] .info-card {
+    background-color: var(--color-gris-claro);
+}
+
+html[data-theme="dark"] .soporte-tips li,
+html[data-theme="dark"] .soporte-horario {
+    color: var(--color-texto);
+}
+
+html[data-theme="dark"] .soporte-horario {
+    background-color: var(--color-blanco);
+    border-color: var(--color-borde);
+}
+
+html[data-theme="dark"] .tabla-tickets tbody td {
+    background-color: transparent;
+}

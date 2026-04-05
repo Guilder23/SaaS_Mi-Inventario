@@ -398,9 +398,13 @@
     </nav>
 
     <div class="sidebar-footer">
-        <div class="sidebar-user">
+        <a href="{% url 'mi_perfil' %}" class="sidebar-user sidebar-user-link" title="Mi Perfil">
             <div class="sidebar-user-avatar">
-                <i class="fas fa-user"></i>
+                {% if user.perfil and user.perfil.foto %}
+                    <img src="{{ user.perfil.foto.url }}" alt="Foto" class="sidebar-user-avatar-img">
+                {% else %}
+                    <i class="fas fa-user"></i>
+                {% endif %}
             </div>
             <div class="sidebar-user-info">
                 <strong>{{ user.username|title }}</strong>
@@ -414,7 +418,7 @@
                     {% endif %}
                 </small>
             </div>
-        </div>
+        </a>
     </div>
 </aside>
 <!-- OVERLAY para cuando está abierto el sidebar en mobile -->

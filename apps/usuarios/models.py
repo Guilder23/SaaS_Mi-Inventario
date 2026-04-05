@@ -25,6 +25,7 @@ class PerfilUsuario(EmpresaOwnedModel):
     encargado = models.CharField(max_length=200, blank=True, null=True)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
+    foto = models.ImageField(upload_to='usuarios/perfiles/', blank=True, null=True)
     activo = models.BooleanField(default=True)
     creado_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='usuarios_creados')
     ubicacion_relacionada = models.ForeignKey(

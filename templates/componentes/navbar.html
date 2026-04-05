@@ -84,7 +84,11 @@
             <div class="navbar-usuario">
                 <button class="navbar-user-btn" id="usuarioBtn" title="Mi cuenta">
                     <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+                        {% if user.perfil and user.perfil.foto %}
+                            <img src="{{ user.perfil.foto.url }}" alt="Foto" class="user-avatar-img">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
                     </div>
                     <div class="user-info">
                         <span class="user-name">{{ user.username|title }}</span>
@@ -113,7 +117,11 @@
                 <div class="navbar-dropdown usuario-dropdown" id="usuarioDropdown">
                     <div class="dropdown-user-header">
                         <div class="user-avatar-large">
-                            <i class="fas fa-user"></i>
+                            {% if user.perfil and user.perfil.foto %}
+                                <img src="{{ user.perfil.foto.url }}" alt="Foto" class="user-avatar-img">
+                            {% else %}
+                                <i class="fas fa-user"></i>
+                            {% endif %}
                         </div>
                         <div class="user-header-text">
                             <strong class="user-header-name">{{ user.username|title }}</strong>
@@ -140,7 +148,7 @@
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>
-                    <a href="#" class="dropdown-item">
+                    <a href="{% url 'mi_perfil' %}" class="dropdown-item">
                         <i class="fas fa-user-circle"></i> Mi Perfil
                     </a>
                     <a href="{% url 'configuracion' %}" class="dropdown-item">

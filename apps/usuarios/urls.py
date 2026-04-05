@@ -31,4 +31,7 @@ urlpatterns = [
     
     # API Endpoints
     path('api/ubicacion/', views.obtener_ubicacion_usuario, name='obtener_ubicacion_usuario'),
+
+    # Perfil
+    path('perfil/', views.mi_perfil, name='mi_perfil'),
 ]

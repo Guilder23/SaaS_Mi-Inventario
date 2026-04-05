@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
+from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Q, Sum, F
@@ -29,6 +30,131 @@ def custom_logout(request):
     logout(request)
     messages.success(request, 'Sesión cerrada exitosamente')
     return redirect('index')
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def mi_perfil(request):
+    """Perfil del usuario autenticado.
+
+    - Editables: first_name, last_name, email y (si existe) campos del PerfilUsuario: encargado, telefono, direccion.
+    - Opcional: cambio de contraseña (requiere confirmación).
+    - Solo lectura: username, rol, empresa, ubicación, fechas.
+    """
+
+    usuario = request.user
+    perfil = getattr(usuario, 'perfil', None)
+    empresa = getattr(request, 'empresa', None) or getattr(perfil, 'empresa', None)
+
+    if request.method == 'POST':
+        email = (request.POST.get('email') or '').strip()
+        first_name = (request.POST.get('first_name') or '').strip()
+        last_name = (request.POST.get('last_name') or '').strip()
+
+        encargado = (request.POST.get('encargado') or '').strip()
+        telefono = (request.POST.get('telefono') or '').strip()
+        direccion = (request.POST.get('direccion') or '').strip()
+
+        nueva_password = request.POST.get('password') or ''
+        nueva_password2 = request.POST.get('password2') or ''
+
+        foto = request.FILES.get('foto')
+
+        # Validación básica de imagen
+        if foto and perfil:
+            max_size_bytes = 2 * 1024 * 1024  # 2MB
+            content_type = getattr(foto, 'content_type', '') or ''
+            if not content_type.startswith('image/'):
+                messages.error(request, 'El archivo debe ser una imagen')
+                return redirect('mi_perfil')
+            if foto.size and foto.size > max_size_bytes:
+                messages.error(request, 'La imagen es muy grande (máximo 2MB)')
+                return redirect('mi_perfil')
+        elif foto and not perfil:
+            messages.warning(request, 'No se pudo guardar la foto: tu usuario no tiene perfil extendido')
+            return redirect('mi_perfil')
+
+        # Validación email único
+        if email and User.objects.filter(email=email).exclude(id=usuario.id).exists():
+            messages.error(request, f'El correo "{email}" ya está registrado')
+            return redirect('mi_perfil')
+
+        # Validación contraseña opcional
+        if nueva_password or nueva_password2:
+            if nueva_password != nueva_password2:
+                messages.error(request, 'Las contraseñas no coinciden')
+                return redirect('mi_perfil')
+            if len(nueva_password) < 8:
+                messages.error(request, 'La contraseña debe tener al menos 8 caracteres')
+                return redirect('mi_perfil')
+
+        try:
+            usuario.email = email
+            usuario.first_name = first_name
+            usuario.last_name = last_name
+
+            if nueva_password:
+                usuario.set_password(nueva_password)
+
+            usuario.save()
+
+            # Si cambió contraseña, mantener la sesión activa
+            if nueva_password:
+                update_session_auth_hash(request, usuario)
+
+            if perfil:
+                perfil.encargado = encargado or None
+                perfil.telefono = telefono or None
+                perfil.direccion = direccion or None
+
+                if foto:
+                    # Evitar archivos huérfanos al reemplazar
+                    if getattr(perfil, 'foto', None):
+                        try:
+                            perfil.foto.delete(save=False)
+                        except Exception:
+                            pass
+                    perfil.foto = foto
+                perfil.save()
+
+            messages.success(request, 'Perfil actualizado correctamente')
+            return redirect('mi_perfil')
+        except Exception as e:
+            messages.error(request, f'Error al actualizar el perfil: {str(e)}')
+            return redirect('mi_perfil')
+
+    # ======= Presentación (solo lectura) =======
+    if usuario.is_superuser:
+        rol_display = 'Administrador (SaaS)'
+    elif perfil:
+        rol_display = perfil.get_rol_display()
+    else:
+        rol_display = 'Usuario'
+
+    empresa_nombre = ''
+    if empresa:
+        empresa_nombre = getattr(empresa, 'nombre', '') or str(empresa)
+
+    ubicacion_display = ''
+    if perfil:
+        if getattr(perfil, 'almacen', None):
+            ubicacion_display = f"Almacén: {perfil.almacen.nombre}"
+        elif getattr(perfil, 'tienda', None):
+            ubicacion_display = f"Tienda: {perfil.tienda.nombre}"
+        elif perfil.nombre_ubicacion:
+            ubicacion_display = perfil.nombre_ubicacion
+        else:
+            ubicacion_display = '—'
+    else:
+        ubicacion_display = '—'
+
+    context = {
+        'perfil': perfil,
+        'empresa_nombre': empresa_nombre or '—',
+        'rol_display': rol_display,
+        'ubicacion_display': ubicacion_display,
+    }
+    return render(request, 'usuarios/perfil.html', context)
 
 @login_required
 def dashboard(request):

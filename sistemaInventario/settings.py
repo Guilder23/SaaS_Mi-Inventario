@@ -28,6 +28,32 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-%(i1_91x*o9qbkki+-s@2
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
+# Seguridad (solo para producción)
+# PythonAnywhere / proxies suelen enviar HTTP_X_FORWARDED_PROTO=https cuando el usuario entra por HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# CSRF_TRUSTED_ORIGINS (útil si usas dominio https o custom domain)
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',')
+    if origin.strip()
+]
+
+if not DEBUG:
+    # Redirección a HTTPS (puedes desactivarla con SECURE_SSL_REDIRECT=False si hiciera falta)
+    SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+
+    # Cookies seguras
+    SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+    CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
+
+    # HSTS: por defecto lo dejamos apagado para evitar problemas irreversibles.
+    # Si confirmas que TODO tu sitio va 100% por HTTPS, puedes ponerlo en .env:
+    # SECURE_HSTS_SECONDS=31536000
+    SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = config('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=False, cast=bool)
+    SECURE_HSTS_PRELOAD = config('SECURE_HSTS_PRELOAD', default=False, cast=bool)
+
 # ALLOWED_HOSTS - Configuración para desarrollo y producción
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 
@@ -111,35 +137,41 @@ WSGI_APPLICATION = 'sistemaInventario.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# PostgreSQL (base de datos principal)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='sistema_inventario'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default='postgres'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-        'CONN_MAX_AGE': 600,  # Mantener conexiones por 10 minutos (mejora rendimiento)
-        'OPTIONS': {
-            'client_encoding': 'UTF8',
-            'connect_timeout': 10,
-        },
-    }
-}
+# En despliegues simples (p.ej. PythonAnywhere) SQLite suele ser la opción más directa.
+# - Por defecto usamos SQLite.
+# - Si defines DATABASE_URL (Render u otros), se usará ese motor automáticamente.
+# - Si necesitas PostgreSQL “manual”, pon USE_SQLITE=False y define DB_*.
 
-# Configuración para Render (producción)
 DATABASE_URL = config('DATABASE_URL', default=None)
-if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.parse(DATABASE_URL)
+USE_SQLITE = config('USE_SQLITE', default=True, cast=bool)
 
-# SQLite para desarrollo (descomentar para usar en lugar de PostgreSQL)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL),
+    }
+elif USE_SQLITE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='sistema_inventario'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default='postgres'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+            'CONN_MAX_AGE': 600,
+            'OPTIONS': {
+                'client_encoding': 'UTF8',
+                'connect_timeout': 10,
+            },
+        }
+    }
 
 
 

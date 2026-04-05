@@ -98,6 +98,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.template.context_processors.static',
                 'apps.moneda.context_processors.moneda_actual',
+                'apps.core.context_processors.theme_flags',
             ],
         },
     },

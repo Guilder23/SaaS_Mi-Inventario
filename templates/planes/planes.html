@@ -76,6 +76,7 @@
                                 data-plan-activo="{% if plan.activo %}True{% else %}False{% endif %}"
                                 data-plan-max-productos="{{ plan.max_productos|default_if_none:'' }}"
                                 data-plan-max-usuarios="{{ plan.max_usuarios_total|default_if_none:'' }}"
+                                data-plan-permite-modo-oscuro="{% if plan.permite_modo_oscuro %}True{% else %}False{% endif %}"
                                 title="Ver"
                                 {% for rol,label in roles %}
                                 data-role-{{ rol }}="{{ limites_por_plan|get_item:plan.id|get_item:rol|default_if_none:'' }}"
@@ -93,6 +94,7 @@
                                 data-plan-activo="{% if plan.activo %}True{% else %}False{% endif %}"
                                 data-plan-max-productos="{{ plan.max_productos|default_if_none:'' }}"
                                 data-plan-max-usuarios="{{ plan.max_usuarios_total|default_if_none:'' }}"
+                                data-plan-permite-modo-oscuro="{% if plan.permite_modo_oscuro %}True{% else %}False{% endif %}"
                                 title="Editar plan"
                             ><i class="fas fa-pen"></i></button>
 

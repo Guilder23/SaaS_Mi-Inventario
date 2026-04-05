@@ -11,6 +11,15 @@
     <script>
         (function () {
             try {
+                var themeAllowed = {% if theme_allowed %}true{% else %}false{% endif %};
+                window.THEME_ALLOWED = themeAllowed;
+
+                if (!themeAllowed) {
+                    try { localStorage.removeItem('theme'); } catch (e) { /* ignore */ }
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    return;
+                }
+
                 var theme = localStorage.getItem('theme');
                 if (theme !== 'light' && theme !== 'dark') {
                     theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)

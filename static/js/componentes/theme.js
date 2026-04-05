@@ -7,6 +7,19 @@
 (function () {
     const STORAGE_KEY = 'theme';
 
+    // Gating por plan (inyectado desde base.html)
+    const THEME_ALLOWED = (window.THEME_ALLOWED !== false);
+
+    if (!THEME_ALLOWED) {
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+            // ignore
+        }
+        document.documentElement.setAttribute('data-theme', 'light');
+        return;
+    }
+
     function isValidTheme(theme) {
         return theme === 'light' || theme === 'dark';
     }

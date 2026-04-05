@@ -18,6 +18,7 @@ def planes_list(request):
             max_productos = (request.POST.get("max_productos") or "").strip()
             max_usuarios_total = (request.POST.get("max_usuarios_total") or "").strip()
             activo = request.POST.get("activo") == "on"
+            permite_modo_oscuro = request.POST.get("permite_modo_oscuro") == "on"
 
             if not codigo or not nombre:
                 messages.error(request, "Código y nombre son obligatorios.")
@@ -32,6 +33,7 @@ def planes_list(request):
                 nombre=nombre,
                 max_productos=int(max_productos) if max_productos else None,
                 max_usuarios_total=int(max_usuarios_total) if max_usuarios_total else None,
+                permite_modo_oscuro=permite_modo_oscuro,
                 activo=activo,
             )
 
@@ -51,6 +53,7 @@ def planes_list(request):
             max_usuarios_total = (request.POST.get("max_usuarios_total") or "").strip()
             plan.max_productos = int(max_productos) if max_productos else None
             plan.max_usuarios_total = int(max_usuarios_total) if max_usuarios_total else None
+            plan.permite_modo_oscuro = request.POST.get("permite_modo_oscuro") == "on"
             plan.activo = request.POST.get("activo") == "on"
             plan.save()
 

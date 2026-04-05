@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputMaxProductos = document.getElementById('editarPlanMaxProductos');
     const inputMaxUsuarios = document.getElementById('editarPlanMaxUsuarios');
     const inputActivo = document.getElementById('editarPlanActivo');
+    const inputPermiteModoOscuro = document.getElementById('editarPlanPermiteModoOscuro');
 
     if (!botones.length) return;
 
@@ -17,6 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
             inputMaxProductos.value = btn.dataset.planMaxProductos || '';
             inputMaxUsuarios.value = btn.dataset.planMaxUsuarios || '';
             inputActivo.checked = (btn.dataset.planActivo === 'True');
+            if (inputPermiteModoOscuro) {
+                inputPermiteModoOscuro.checked = (btn.dataset.planPermiteModoOscuro === 'True');
+            }
         });
     });
 });

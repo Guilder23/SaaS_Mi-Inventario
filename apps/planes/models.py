@@ -11,6 +11,12 @@ class Plan(models.Model):
     max_productos = models.PositiveIntegerField(null=True, blank=True, help_text="Límite de productos activos/registrados. Vacío = ilimitado")
     max_usuarios_total = models.PositiveIntegerField(null=True, blank=True, help_text="Límite total de usuarios activos. Vacío = ilimitado")
 
+    # Features
+    permite_modo_oscuro = models.BooleanField(
+        default=True,
+        help_text="Permite usar el modo oscuro/claro en la interfaz.",
+    )
+
     activo = models.BooleanField(default=True)
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)

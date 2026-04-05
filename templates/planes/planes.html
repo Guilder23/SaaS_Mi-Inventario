@@ -37,6 +37,7 @@
                         <th style="width: 13%;">Estado</th>
                         <th style="width: 14%;">Max productos</th>
                         <th style="width: 14%;">Max usuarios</th>
+                        <th style="width: 12%;">Descuento</th>
                         <th class="text-center" style="width: 12%;">Acciones</th>
                     </tr>
                 </thead>
@@ -71,6 +72,13 @@
                                 <span class="text-muted">Ilimitado</span>
                             {% else %}
                                 {{ plan.max_usuarios_total }}
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if plan.descuento_porcentaje %}
+                                {{ plan.descuento_porcentaje }}% por {{ plan.descuento_meses }} meses
+                            {% else %}
+                                <span class="text-muted">Sin descuento</span>
                             {% endif %}
                         </td>
                         <td class="text-center acciones-col">

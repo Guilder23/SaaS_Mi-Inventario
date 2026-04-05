@@ -1,9 +1,12 @@
 from datetime import timedelta
+from io import BytesIO
+import os
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -13,6 +16,8 @@ from apps.usuarios.models import PerfilUsuario
 from apps.notificaciones.utils import crear_notificacion
 from apps.planes.quota import can_activate_user_for_role
 from apps.planes.models import Plan
+
+from django.conf import settings
 
 
 @login_required
@@ -31,7 +36,14 @@ def pagos_empresa(request):
         comprobante = request.FILES.get("comprobante")
         comentario = request.POST.get("comentario", "").strip()
 
-        if not monto or not comprobante:
+        plan_obj = Plan.objects.filter(codigo=empresa.plan).first()
+        pricing = None
+        if plan_obj and plan_obj.precio_mensual is not None:
+            pricing = plan_obj.calcular_precio(fecha=timezone.now().date())
+            monto = pricing["total"]
+            moneda = pricing["moneda"]
+
+        if (monto is None or str(monto).strip() == "") or not comprobante:
             messages.error(request, "Monto y comprobante son obligatorios.")
             return redirect("pagos_empresa")
 
@@ -39,6 +51,11 @@ def pagos_empresa(request):
             empresa=empresa,
             monto=monto,
             moneda=moneda,
+            plan_codigo=(plan_obj.codigo if plan_obj else None),
+            plan_nombre=(plan_obj.nombre if plan_obj else None),
+            precio_base=(pricing["base"] if pricing else None),
+            descuento_porcentaje=(pricing["descuento_porcentaje"] if pricing else None),
+            descuento_monto=(pricing["descuento"] if pricing else None),
             comprobante=comprobante,
             comentario=comentario,
             enviado_por=request.user,
@@ -72,6 +89,11 @@ def pagos_empresa(request):
     qr_config = PagoQRConfig.objects.filter(activo=True).order_by("-fecha_creacion").first()
     pagos = PagoEmpresa.objects.filter(empresa=empresa).order_by("-fecha_envio")
 
+    plan_obj = Plan.objects.filter(codigo=empresa.plan).first()
+    pricing = None
+    if plan_obj and plan_obj.precio_mensual is not None:
+        pricing = plan_obj.calcular_precio(fecha=timezone.now().date())
+
     hoy = timezone.now().date()
     fecha_vencimiento = empresa.fecha_vencimiento
     dias_restantes = None
@@ -97,6 +119,8 @@ def pagos_empresa(request):
         "empresa": empresa,
         "qr_config": qr_config,
         "pagos": pagos,
+        "plan_obj": plan_obj,
+        "pricing": pricing,
         "fecha_vencimiento": fecha_vencimiento,
         "dias_restantes": dias_restantes,
         "estado_licencia": estado_licencia,
@@ -104,6 +128,248 @@ def pagos_empresa(request):
         "alerta_licencia": alerta_licencia,
     }
     return render(request, "empresas/pagos_cliente/pagos_cliente.html", context)
+
+
+@login_required
+def pago_pdf(request, pago_id: int):
+    pago = get_object_or_404(PagoEmpresa, id=pago_id)
+
+    if not request.user.is_superuser:
+        empresa = getattr(request, "empresa", None)
+        if not empresa or pago.empresa_id != empresa.id:
+            return HttpResponseForbidden("No tienes permiso para ver este PDF.")
+
+    # Estilo similar al PDF de traspasos (Platypus + tablas)
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image as RLImage
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+
+    now = timezone.localtime()
+    fecha = now.strftime('%d/%m/%Y')
+    hora = now.strftime('%H:%M')
+
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        topMargin=0.3 * inch,
+        bottomMargin=0.3 * inch,
+        leftMargin=0.3 * inch,
+        rightMargin=0.3 * inch,
+    )
+    elements = []
+
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        textColor=colors.HexColor('#003366'),
+        alignment=TA_CENTER,
+        spaceAfter=12,
+        fontName='Helvetica-Bold',
+    )
+    value_style = ParagraphStyle(
+        'Value',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        textColor=colors.HexColor('#1f2937'),
+    )
+    table_header_style = ParagraphStyle(
+        'TableHeader',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        textColor=colors.white,
+        alignment=TA_CENTER,
+    )
+    table_value_style = ParagraphStyle(
+        'TableValue',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        textColor=colors.HexColor('#0f172a'),
+        alignment=TA_LEFT,
+    )
+    table_amount_style = ParagraphStyle(
+        'TableAmount',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=9,
+        textColor=colors.HexColor('#0f172a'),
+        alignment=TA_RIGHT,
+    )
+
+    # Header con logo (si existe)
+    logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logoAlmacen.png')
+    logo = None
+    if os.path.exists(logo_path):
+        try:
+            logo = RLImage(logo_path, width=0.75 * inch, height=0.75 * inch)
+        except Exception:
+            logo = None
+
+    company_name = Paragraph('Sistema Inventario', ParagraphStyle('CompanyTitle', parent=styles['Heading1'], fontSize=18, textColor=colors.HexColor('#111827'), fontName='Helvetica-Bold'))
+    company_tagline = Paragraph('Comprobante / Recibo de pago', ParagraphStyle('CompanyTagline', parent=styles['Normal'], fontSize=8, textColor=colors.HexColor('#4b5563'), italic=True))
+    intro_table = Table([[logo or '', [company_name, company_tagline]]], colWidths=[0.9 * inch, 5.6 * inch])
+    intro_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    elements.append(intro_table)
+    elements.append(Spacer(1, 0.08 * inch))
+
+    elements.append(Paragraph('COMPROBANTE DE PAGO', ParagraphStyle('DocTitle', parent=styles['Heading1'], fontSize=18, alignment=TA_CENTER, textColor=colors.HexColor('#111827'), fontName='Helvetica-Bold')))
+    elements.append(Spacer(1, 0.18 * inch))
+
+    # Información general
+    info_text = []
+    info_text.append(Paragraph(f'<b>Pago ID:</b> {pago.id}', value_style))
+    info_text.append(Paragraph(f'<b>Fecha de emisión:</b> {fecha} {hora}', value_style))
+    info_text.append(Paragraph(f'<b>Empresa:</b> {pago.empresa.nombre}', value_style))
+    if pago.plan_codigo or pago.plan_nombre:
+        info_text.append(Paragraph(f'<b>Plan:</b> {(pago.plan_nombre or "-")} ({(pago.plan_codigo or "-")})', value_style))
+    info_text.append(Paragraph(f'<b>Fecha envío:</b> {timezone.localtime(pago.fecha_envio).strftime("%d/%m/%Y %H:%M")}', value_style))
+    info_text.append(Paragraph(f'<b>Estado:</b> {pago.get_estado_display()}', value_style))
+    if pago.enviado_por:
+        info_text.append(Paragraph(f'<b>Enviado por:</b> {pago.enviado_por.username}', value_style))
+    if pago.revisado_por:
+        info_text.append(Paragraph(f'<b>Revisado por:</b> {pago.revisado_por.username}', value_style))
+    if pago.fecha_revision:
+        info_text.append(Paragraph(f'<b>Fecha revisión:</b> {timezone.localtime(pago.fecha_revision).strftime("%d/%m/%Y %H:%M")}', value_style))
+    info_text.append(Paragraph(f'<b>Días de vigencia:</b> {pago.dias_vigencia}', value_style))
+    if pago.empresa.fecha_pago:
+        info_text.append(Paragraph(f'<b>Fecha pago (empresa):</b> {pago.empresa.fecha_pago.strftime("%d/%m/%Y")}', value_style))
+    if pago.empresa.fecha_vencimiento:
+        info_text.append(Paragraph(f'<b>Fecha vencimiento (empresa):</b> {pago.empresa.fecha_vencimiento.strftime("%d/%m/%Y")}', value_style))
+
+    for paragraph in info_text:
+        elements.append(paragraph)
+        elements.append(Spacer(1, 0.03 * inch))
+
+    elements.append(Spacer(1, 0.12 * inch))
+
+    # Tabla de detalle económico
+    moneda = (pago.moneda or 'BOB').strip() or 'BOB'
+    detalle_data = [
+        [Paragraph('<b>Concepto</b>', table_header_style), Paragraph('<b>Monto</b>', table_header_style)],
+    ]
+
+    if pago.precio_base is not None:
+        detalle_data.append([
+            Paragraph('Precio mensual', table_value_style),
+            Paragraph(f'{pago.precio_base} {moneda}', table_amount_style),
+        ])
+    else:
+        detalle_data.append([
+            Paragraph('Monto reportado', table_value_style),
+            Paragraph(f'{pago.monto} {moneda}', table_amount_style),
+        ])
+
+    if pago.descuento_monto is not None and (pago.descuento_porcentaje or 0) > 0:
+        detalle_data.append([
+            Paragraph(f'Descuento ({pago.descuento_porcentaje}%)', table_value_style),
+            Paragraph(f'-{pago.descuento_monto} {moneda}', table_amount_style),
+        ])
+
+    detalle_data.append([
+        Paragraph('<b>Total</b>', table_value_style),
+        Paragraph(f'<b>{pago.monto} {moneda}</b>', table_amount_style),
+    ])
+
+    detalle_table = Table(detalle_data, colWidths=[5.1 * inch, 2.0 * inch], repeatRows=1)
+    detalle_style = [
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#ffffff')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ('ALIGN', (1, 1), (1, -1), 'RIGHT'),
+    ]
+    for i in range(1, len(detalle_data)):
+        color_fila = colors.HexColor('#f8fafc') if i % 2 == 1 else colors.white
+        detalle_style.append(('BACKGROUND', (0, i), (-1, i), color_fila))
+    detalle_table.setStyle(TableStyle(detalle_style))
+    elements.append(detalle_table)
+    elements.append(Spacer(1, 0.18 * inch))
+
+    # Comentario
+    comentario_texto = str(pago.comentario) if pago.comentario else 'Sin comentario'
+    comment_box = Table(
+        [[Paragraph('<b>Comentario</b>', value_style)], [Paragraph(comentario_texto, value_style)]],
+        colWidths=[7.1 * inch],
+        hAlign='LEFT',
+    )
+    comment_box.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f1f5f9')),
+        ('BOX', (0, 0), (-1, -1), 0.75, colors.HexColor('#cbd5e1')),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    elements.append(comment_box)
+    elements.append(Spacer(1, 0.18 * inch))
+
+    # Comprobante (imagen)
+    def resolve_comprobante():
+        if not pago.comprobante:
+            return None
+
+        # Intentar URL remota primero (si aplica)
+        try:
+            if hasattr(pago.comprobante, 'url'):
+                img_url = pago.comprobante.url
+                try:
+                    import requests
+                    response = requests.get(img_url, timeout=5)
+                    if response.status_code == 200:
+                        img_buffer = BytesIO(response.content)
+                        return RLImage(img_buffer, width=6.7 * inch, height=3.5 * inch)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # Fallback local
+        try:
+            path_img = None
+            try:
+                if hasattr(pago.comprobante, 'path'):
+                    path_img = pago.comprobante.path
+            except Exception:
+                path_img = None
+            if not path_img or not os.path.exists(path_img):
+                if pago.comprobante.name:
+                    path_img = os.path.join(settings.MEDIA_ROOT, pago.comprobante.name)
+            if path_img and os.path.exists(path_img):
+                return RLImage(path_img, width=6.7 * inch, height=3.5 * inch)
+        except Exception:
+            return None
+        return None
+
+    img = resolve_comprobante()
+    if img is not None:
+        elements.append(Paragraph('<b>Comprobante (imagen)</b>', value_style))
+        elements.append(Spacer(1, 0.06 * inch))
+        elements.append(img)
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="pago_{pago.id}.pdf"'
+    return response
 
 
 @user_passes_test(lambda user: user.is_superuser)

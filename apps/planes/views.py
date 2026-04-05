@@ -9,6 +9,13 @@ from apps.planes.models import Plan, PlanRolLimite
 def planes_list(request):
     roles = PlanRolLimite.ROLES
 
+    def _norm_decimal(value: str):
+        value = (value or "").strip()
+        if not value:
+            return ""
+        # soportar coma decimal (es-ES)
+        return value.replace(",", ".")
+
     if request.method == "POST":
         action = request.POST.get("action")
 
@@ -19,6 +26,11 @@ def planes_list(request):
             max_usuarios_total = (request.POST.get("max_usuarios_total") or "").strip()
             activo = request.POST.get("activo") == "on"
             permite_modo_oscuro = request.POST.get("permite_modo_oscuro") == "on"
+
+            precio_mensual = _norm_decimal(request.POST.get("precio_mensual"))
+            moneda = (request.POST.get("moneda") or "BOB").strip() or "BOB"
+            descuento_porcentaje = _norm_decimal(request.POST.get("descuento_porcentaje"))
+            descuento_meses = (request.POST.get("descuento_meses") or "").strip()
 
             if not codigo or not nombre:
                 messages.error(request, "Código y nombre son obligatorios.")
@@ -35,6 +47,10 @@ def planes_list(request):
                 max_usuarios_total=int(max_usuarios_total) if max_usuarios_total else None,
                 permite_modo_oscuro=permite_modo_oscuro,
                 activo=activo,
+                precio_mensual=precio_mensual or None,
+                moneda=moneda,
+                descuento_porcentaje=descuento_porcentaje or 0,
+                descuento_meses=descuento_meses or None,
             )
 
             for rol, _label in roles:
@@ -55,6 +71,15 @@ def planes_list(request):
             plan.max_usuarios_total = int(max_usuarios_total) if max_usuarios_total else None
             plan.permite_modo_oscuro = request.POST.get("permite_modo_oscuro") == "on"
             plan.activo = request.POST.get("activo") == "on"
+
+            precio_mensual = _norm_decimal(request.POST.get("precio_mensual"))
+            plan.precio_mensual = precio_mensual or None
+            plan.moneda = (request.POST.get("moneda") or plan.moneda or "BOB").strip() or "BOB"
+
+            descuento_porcentaje = _norm_decimal(request.POST.get("descuento_porcentaje"))
+            plan.descuento_porcentaje = descuento_porcentaje or 0
+            descuento_meses = (request.POST.get("descuento_meses") or "").strip()
+            plan.descuento_meses = descuento_meses or None
             plan.save()
 
             # asegurar filas por rol

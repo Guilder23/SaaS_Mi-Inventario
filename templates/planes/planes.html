@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% load planes_extras %}
+{% load l10n %}
 
 {% block titulo %}Planes{% endblock %}
 
@@ -31,11 +32,12 @@
                 <thead>
                     <tr>
                         <th style="width: 16%;">Código</th>
-                        <th style="width: 20%;">Nombre</th>
-                        <th style="width: 14%;">Estado</th>
-                        <th style="width: 16%;">Max productos</th>
-                        <th style="width: 18%;">Max usuarios</th>
-                        <th class="text-center" style="width: 16%;">Acciones</th>
+                        <th style="width: 19%;">Nombre</th>
+                        <th style="width: 12%;">Precio mensual</th>
+                        <th style="width: 13%;">Estado</th>
+                        <th style="width: 14%;">Max productos</th>
+                        <th style="width: 14%;">Max usuarios</th>
+                        <th class="text-center" style="width: 12%;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,6 +45,13 @@
                     <tr>
                         <td><span class="badge-codigo">{{ plan.codigo }}</span></td>
                         <td>{{ plan.nombre }}</td>
+                        <td>
+                            {% if plan.precio_mensual is None %}
+                                <span class="text-muted">No configurado</span>
+                            {% else %}
+                                {{ plan.precio_mensual }} {{ plan.moneda|default:'BOB' }}
+                            {% endif %}
+                        </td>
                         <td>
                             {% if plan.activo %}
                                 <span class="badge-estado badge-estado-activo"><i class="fas fa-check-circle"></i> Activo</span>
@@ -77,6 +86,10 @@
                                 data-plan-max-productos="{{ plan.max_productos|default_if_none:'' }}"
                                 data-plan-max-usuarios="{{ plan.max_usuarios_total|default_if_none:'' }}"
                                 data-plan-permite-modo-oscuro="{% if plan.permite_modo_oscuro %}True{% else %}False{% endif %}"
+                                data-plan-precio-mensual="{{ plan.precio_mensual|default_if_none:''|unlocalize }}"
+                                data-plan-moneda="{{ plan.moneda|default_if_none:'BOB' }}"
+                                data-plan-descuento-porcentaje="{{ plan.descuento_porcentaje|default_if_none:''|unlocalize }}"
+                                data-plan-descuento-meses="{{ plan.descuento_meses|default_if_none:'' }}"
                                 title="Ver"
                                 {% for rol,label in roles %}
                                 data-role-{{ rol }}="{{ limites_por_plan|get_item:plan.id|get_item:rol|default_if_none:'' }}"
@@ -95,6 +108,10 @@
                                 data-plan-max-productos="{{ plan.max_productos|default_if_none:'' }}"
                                 data-plan-max-usuarios="{{ plan.max_usuarios_total|default_if_none:'' }}"
                                 data-plan-permite-modo-oscuro="{% if plan.permite_modo_oscuro %}True{% else %}False{% endif %}"
+                                data-plan-precio-mensual="{{ plan.precio_mensual|default_if_none:''|unlocalize }}"
+                                data-plan-moneda="{{ plan.moneda|default_if_none:'BOB' }}"
+                                data-plan-descuento-porcentaje="{{ plan.descuento_porcentaje|default_if_none:''|unlocalize }}"
+                                data-plan-descuento-meses="{{ plan.descuento_meses|default_if_none:'' }}"
                                 title="Editar plan"
                             ><i class="fas fa-pen"></i></button>
 
@@ -127,7 +144,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="text-center py-4 text-muted">No hay planes configurados.</td></tr>
+                    <tr><td colspan="7" class="text-center py-4 text-muted">No hay planes configurados.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

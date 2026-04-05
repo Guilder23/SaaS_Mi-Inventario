@@ -50,6 +50,14 @@ class PagoEmpresa(models.Model):
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name="pagos")
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     moneda = models.CharField(max_length=10, default="BOB")
+
+    # Snapshot del plan/precio al momento del pago (para historial/PDF)
+    plan_codigo = models.CharField(max_length=30, blank=True, null=True)
+    plan_nombre = models.CharField(max_length=100, blank=True, null=True)
+    precio_base = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    descuento_porcentaje = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    descuento_monto = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
     comprobante = models.ImageField(upload_to="pagos/", null=False, blank=False)
     estado = models.CharField(max_length=20, choices=ESTADOS, default="pendiente")
     dias_vigencia = models.IntegerField(default=30)

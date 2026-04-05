@@ -1,3 +1,5 @@
+{% load l10n %}
+
 <div class="modal fade" id="modalCrearPago" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -12,17 +14,47 @@
             <form id="formCrearPago" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body">
+                    {% if plan_obj and pricing %}
+                        <div class="alert alert-info py-2">
+                            <div><strong>Plan:</strong> {{ plan_obj.nombre }} ({{ plan_obj.codigo }})</div>
+                            <div>
+                                <strong>Precio mensual:</strong> {{ pricing.base }} {{ pricing.moneda }}
+                                {% if pricing.aplica_descuento %}
+                                    <span class="text-muted"> | Descuento: -{{ pricing.descuento }} ({{ pricing.descuento_porcentaje }}%)</span>
+                                {% endif %}
+                                <span class="ml-2"><strong>Total a pagar:</strong> {{ pricing.total }} {{ pricing.moneda }}</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning py-2">
+                            No hay precio configurado para tu plan. Ingresa el monto manualmente.
+                        </div>
+                    {% endif %}
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label for="monto" class="form-label">Monto <span class="text-danger">*</span></label>
-                            <input type="number" step="0.01" class="form-control" id="monto" name="monto" required>
+                            <input
+                                type="number"
+                                step="0.01"
+                                class="form-control"
+                                id="monto"
+                                name="monto"
+                                value="{% if pricing %}{{ pricing.total|unlocalize }}{% endif %}"
+                                {% if pricing %}readonly{% endif %}
+                                required
+                            >
                         </div>
                         <div class="form-group col-md-4">
                             <label for="moneda" class="form-label">Moneda</label>
-                            <select class="form-control" id="moneda" name="moneda">
-                                <option value="BOB">BOB</option>
-                                <option value="USD">USD</option>
-                            </select>
+                            {% if pricing %}
+                                <input type="text" class="form-control" value="{{ pricing.moneda }}" readonly>
+                                <input type="hidden" name="moneda" value="{{ pricing.moneda }}">
+                            {% else %}
+                                <select class="form-control" id="moneda" name="moneda">
+                                    <option value="BOB">BOB</option>
+                                    <option value="USD">USD</option>
+                                </select>
+                            {% endif %}
                         </div>
                         <div class="form-group col-md-4">
                             <label for="comprobante" class="form-label">Comprobante <span class="text-danger">*</span></label>

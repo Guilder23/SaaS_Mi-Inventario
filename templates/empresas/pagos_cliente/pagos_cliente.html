@@ -165,6 +165,15 @@
                             >
                                 <i class="fas fa-eye"></i>
                             </button>
+
+                            <a
+                                class="btn btn-secondary btn-sm"
+                                href="{% url 'pago_pdf' pago.id %}"
+                                target="_blank"
+                                title="PDF"
+                            >
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
                         </td>
                     </tr>
                     {% empty %}

@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputId = document.getElementById('editarPlanId');
     const inputCodigo = document.getElementById('editarPlanCodigo');
     const inputNombre = document.getElementById('editarPlanNombre');
+    const inputPrecioMensual = document.getElementById('editarPlanPrecioMensual');
+    const inputMoneda = document.getElementById('editarPlanMoneda');
+    const inputDescuentoPorcentaje = document.getElementById('editarPlanDescuentoPorcentaje');
+    const inputDescuentoMeses = document.getElementById('editarPlanDescuentoMeses');
     const inputMaxProductos = document.getElementById('editarPlanMaxProductos');
     const inputMaxUsuarios = document.getElementById('editarPlanMaxUsuarios');
     const inputActivo = document.getElementById('editarPlanActivo');
@@ -15,6 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
             inputId.value = btn.dataset.planId || '';
             inputCodigo.value = btn.dataset.planCodigo || '';
             inputNombre.value = btn.dataset.planNombre || '';
+            if (inputPrecioMensual) inputPrecioMensual.value = btn.dataset.planPrecioMensual || '';
+            if (inputMoneda) inputMoneda.value = btn.dataset.planMoneda || 'BOB';
+            if (inputDescuentoPorcentaje) inputDescuentoPorcentaje.value = btn.dataset.planDescuentoPorcentaje || '';
+            if (inputDescuentoMeses) inputDescuentoMeses.value = btn.dataset.planDescuentoMeses || '';
             inputMaxProductos.value = btn.dataset.planMaxProductos || '';
             inputMaxUsuarios.value = btn.dataset.planMaxUsuarios || '';
             inputActivo.checked = (btn.dataset.planActivo === 'True');

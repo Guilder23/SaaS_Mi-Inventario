@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputEstado = document.getElementById('verPlanEstado');
     const inputMaxProductos = document.getElementById('verPlanMaxProductos');
     const inputMaxUsuarios = document.getElementById('verPlanMaxUsuarios');
+    const inputPrecioMensual = document.getElementById('verPlanPrecioMensual');
+    const inputMoneda = document.getElementById('verPlanMoneda');
+    const inputDescuentoPorcentaje = document.getElementById('verPlanDescuentoPorcentaje');
+    const inputDescuentoMeses = document.getElementById('verPlanDescuentoMeses');
 
     if (!botones.length) return;
 
@@ -20,6 +24,22 @@ document.addEventListener('DOMContentLoaded', function () {
             const mu = (btn.dataset.planMaxUsuarios || '').trim();
             inputMaxProductos.value = mp ? mp : 'Ilimitado';
             inputMaxUsuarios.value = mu ? mu : 'Ilimitado';
+
+            if (inputPrecioMensual) {
+                const pm = (btn.dataset.planPrecioMensual || '').trim();
+                inputPrecioMensual.value = pm ? pm : 'No configurado';
+            }
+            if (inputMoneda) {
+                inputMoneda.value = (btn.dataset.planMoneda || 'BOB').trim() || 'BOB';
+            }
+            if (inputDescuentoPorcentaje) {
+                const dp = (btn.dataset.planDescuentoPorcentaje || '').trim();
+                inputDescuentoPorcentaje.value = dp ? dp : '0';
+            }
+            if (inputDescuentoMeses) {
+                const dm = (btn.dataset.planDescuentoMeses || '').trim();
+                inputDescuentoMeses.value = dm ? dm : '-';
+            }
 
             const rolesSpans = document.querySelectorAll('[id^="verRole__"]');
             rolesSpans.forEach(span => {

@@ -1,0 +1,118 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block titulo %}Configuración{% endblock %}
+
+{% block estilos_extra %}
+    <link rel="stylesheet" href="{% static 'css/dashboard/configuracion.css' %}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid">
+    <div class="config-container">
+        <div class="page-header mb-4">
+            <div>
+                <h1 class="page-title mb-1"><i class="fas fa-cog"></i> Configuración</h1>
+                <p class="page-subtitle text-muted mb-0">Ajustes de la cuenta, preferencias de notificaciones y personalización de la interfaz.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-config mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-language"></i> Idioma del sistema</h5>
+                        <p class="text-muted small mb-3">Selecciona el idioma de la interfaz (aplicación gradual).</p>
+
+                        <div class="form-group mb-0">
+                            <label for="cfgLanguage" class="mb-1">Idioma</label>
+                            <select class="form-control" id="cfgLanguage">
+                                <option value="es" selected>Español</option>
+                            </select>
+                            <small class="text-muted">Por ahora solo disponible Español.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-config mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-bell"></i> Notificaciones</h5>
+                        <p class="text-muted small mb-3">Controla cómo se muestran las notificaciones en el sistema.</p>
+
+                        <div class="custom-control custom-switch mb-2">
+                            <input type="checkbox" class="custom-control-input" id="cfgNotificationsEnabled" checked>
+                            <label class="custom-control-label" for="cfgNotificationsEnabled">Mostrar notificaciones</label>
+                        </div>
+
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="cfgNotificationsSound">
+                            <label class="custom-control-label" for="cfgNotificationsSound">Sonido de notificación</label>
+                        </div>
+
+                        <small class="text-muted d-block mt-2">Estas preferencias se guardan en este navegador.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card card-config mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-exclamation-triangle"></i> Alertas de stock</h5>
+                        <p class="text-muted small mb-3">Recomendación: configura umbrales de “stock crítico” y “stock bajo” según tu operación.</p>
+
+                        <div class="alert alert-info mb-0">
+                            <strong>Nota:</strong> por ahora este panel es informativo. Los umbrales globales se controlan en la configuración del servidor.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-config mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fas fa-palette"></i> Tema</h5>
+                        <p class="text-muted small mb-3">Personaliza la interfaz: seguir el sistema o fijar un modo.</p>
+
+                        {% if theme_allowed %}
+                            <div class="form-group">
+                                <label class="mb-2">Preferencia de tema</label>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="cfgThemeSystem" name="cfgTheme" class="custom-control-input" value="system">
+                                    <label class="custom-control-label" for="cfgThemeSystem">Seguir el sistema</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="cfgThemeLight" name="cfgTheme" class="custom-control-input" value="light">
+                                    <label class="custom-control-label" for="cfgThemeLight">Claro</label>
+                                </div>
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" id="cfgThemeDark" name="cfgTheme" class="custom-control-input" value="dark">
+                                    <label class="custom-control-label" for="cfgThemeDark">Oscuro</label>
+                                </div>
+                                <small class="text-muted d-block mt-2">“Seguir el sistema” elimina la preferencia guardada y usa la del dispositivo.</small>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                <small class="text-muted">Tema actual: <span id="cfgThemeCurrent" class="badge badge-secondary">-</span></small>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="cfgThemeToggleBtn">
+                                    <i class="fas fa-adjust"></i> Alternar tema
+                                </button>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning mb-0">
+                                Tu plan actual no permite personalizar el tema.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <small class="text-muted">Los cambios de esta página se aplican de inmediato.</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+    <script src="{% static 'js/dashboard/configuracion.js' %}"></script>
+{% endblock %}

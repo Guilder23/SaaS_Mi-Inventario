@@ -17,6 +17,9 @@ urlpatterns = [
 
     # Ayuda
     path('ayuda/', dashboard_views.ayuda, name='ayuda'),
+
+    # Configuración
+    path('configuracion/', dashboard_views.configuracion, name='configuracion'),
     
     # Gestión de usuarios (solo administrador)
     path('usuarios/', views.listar_usuarios, name='listar_usuarios'),

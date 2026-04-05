@@ -1,0 +1,31 @@
+.config-container {
+  max-width: 1050px;
+  margin: 20px auto;
+}
+
+.card-config {
+  border: none;
+  border-radius: 12px;
+}
+
+.card-config .card-title {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.card-config .card-title i {
+  margin-right: 0.35rem;
+}
+
+.page-title {
+  font-weight: 800;
+}
+
+.page-subtitle {
+  margin-top: 0.25rem;
+}
+
+/* Asegurar que los badges normales NO sean absolutos por estilos globales */
+.card-config .badge {
+  position: static;
+}
